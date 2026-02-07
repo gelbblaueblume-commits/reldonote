@@ -3,122 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reldo note PRO | Enterprise Edition</title>
+    <title>reldo note | Massive Pro Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        /* RELDO NOTE - ARCHITEKTUR-SYSTEM 
+           DESIGN-SPRACHE: MODERN INDUSTRIAL / MINIMALIST 
+        */
+
         :root {
+            /* Basis-Variablen (Default: Deep Space) */
             --bg: #050505;
             --surface: #0f0f12;
-            --surface-hover: #1a1a1e;
+            --surface-hover: #16161a;
             --accent: #ffffff;
-            --accent-muted: #27272a;
             --primary: #3b82f6;
-            --text: #ffffff;
+            --text-main: #ffffff;
             --text-dim: #a1a1aa;
-            --text-ultra-dim: #3f3f46;
-            --border: rgba(255, 255, 255, 0.06);
+            --text-ghost: #3f3f46;
+            --border: rgba(255, 255, 255, 0.08);
             --danger: #ef4444;
             --success: #10b981;
-            --glass: rgba(15, 15, 18, 0.7);
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* THEME ENGINE STYLES */
+        body.theme-midnight { --bg: #0a0e1a; --surface: #121826; --primary: #60a5fa; }
+        body.theme-forest { --bg: #08100a; --surface: #0f1a12; --primary: #34d399; }
+        body.theme-sunset { --bg: #1a0f0f; --surface: #261616; --primary: #f87171; }
+        body.theme-royal { --bg: #0f0a1a; --surface: #1a1226; --primary: #a78bfa; }
+        body.theme-slate { --bg: #0f172a; --surface: #1e293b; --primary: #38bdf8; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
         body { 
             background: var(--bg); 
-            color: var(--text); 
+            color: var(--text-main); 
             font-family: 'Plus Jakarta Sans', sans-serif;
             height: 100vh; 
             display: flex; 
             overflow: hidden; 
+            transition: var(--transition);
         }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR NAVIGATION --- */
         aside {
             width: 320px;
             background: var(--surface);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 30px 20px;
-            transition: transform 0.3s ease;
+            padding: 35px 25px;
             z-index: 100;
         }
 
-        .brand-container {
+        .brand-section {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-            padding-left: 10px;
+            gap: 15px;
+            margin-bottom: 45px;
         }
 
-        .brand-logo {
-            width: 32px;
-            height: 32px;
+        .brand-icon {
+            width: 38px;
+            height: 38px;
             background: var(--accent);
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: black;
             font-weight: 800;
+            font-size: 1.2rem;
         }
 
-        .brand-name { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-text h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+        .brand-text p { font-size: 0.65rem; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
-        .search-box {
-            position: relative;
-            margin-bottom: 25px;
+        .nav-label {
+            font-size: 0.7rem;
+            color: var(--text-ghost);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 800;
+            margin: 25px 0 15px 5px;
         }
 
-        .search-input {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
+        /* COLOR PICKER SYSTEM */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .theme-btn {
+            height: 45px;
             border-radius: 12px;
-            padding: 10px 15px 10px 35px;
-            color: white;
-            font-size: 0.85rem;
-            transition: 0.2s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-dim);
         }
 
-        .search-input:focus { border-color: var(--primary); }
+        .theme-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .theme-btn.active { border-color: var(--primary); background: rgba(255,255,255,0.05); color: white; }
 
-        .nav-group { margin-bottom: 30px; }
-        .nav-label { font-size: 0.65rem; color: var(--text-ultra-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 12px; padding-left: 10px; }
-        
-        .nav-item {
+        /* ACTIONS SECTION */
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 100%;
             padding: 12px 15px;
             border-radius: 12px;
-            cursor: pointer;
+            background: transparent;
+            border: 1px solid var(--border);
             color: var(--text-dim);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-weight: 500;
-            margin-bottom: 4px;
+            transition: var(--transition);
         }
 
-        .nav-item:hover { background: var(--surface-hover); color: var(--text); }
-        .nav-item.active { background: var(--accent-muted); color: var(--accent); }
+        .action-btn:hover { background: var(--surface-hover); color: var(--accent); border-color: var(--text-ghost); }
+        .action-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
 
-        /* --- CALENDAR SYSTEM --- */
-        .cal-container {
+        /* CALENDAR COMPONENT */
+        .calendar-widget {
+            margin-top: auto;
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: auto;
+            border-radius: 20px;
+            padding: 18px;
         }
 
-        .cal-header {
+        .cal-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             font-size: 0.8rem;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         .cal-grid {
@@ -127,529 +164,488 @@
             gap: 4px;
         }
 
-        .cal-day-label { font-size: 0.6rem; color: var(--text-ultra-dim); text-align: center; font-weight: 800; padding-bottom: 5px; }
+        .cal-day-name { font-size: 0.55rem; color: var(--text-ghost); text-align: center; font-weight: 900; margin-bottom: 5px; }
+        
         .cal-cell {
             aspect-ratio: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             border-radius: 8px;
             cursor: pointer;
             color: var(--text-dim);
             transition: 0.2s;
+            position: relative;
         }
 
         .cal-cell:hover { background: var(--surface-hover); color: white; }
         .cal-cell.selected { background: var(--accent); color: black; font-weight: 800; }
-        .cal-cell.today { color: var(--primary); font-weight: 800; text-decoration: underline; }
-        .cal-cell.has-note::after { content: ''; position: absolute; width: 3px; height: 3px; background: var(--primary); border-radius: 50%; bottom: 4px; }
+        .cal-cell.today { color: var(--primary); font-weight: 900; }
+        .cal-cell.has-content::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 3px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
 
-        /* --- MAIN VIEW --- */
+        /* --- MAIN CONTENT AREA --- */
         main {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            position: relative;
+            background: var(--bg);
         }
 
         header {
-            padding: 30px 60px;
+            padding: 40px 60px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-end;
             border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-            position: sticky;
-            top: 0;
-            background: var(--glass);
-            z-index: 50;
         }
 
-        .header-info h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
-        .header-info p { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+        .welcome-text h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+        .welcome-text p { color: var(--text-dim); margin-top: 5px; font-size: 0.95rem; }
 
-        .stats-strip { display: flex; gap: 30px; }
-        .stat-item { text-align: right; }
-        .stat-value { display: block; font-size: 1.2rem; font-weight: 700; }
-        .stat-label { font-size: 0.65rem; color: var(--text-ultra-dim); text-transform: uppercase; font-weight: 700; }
+        .header-meta { text-align: right; }
+        #live-clock { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 400; letter-spacing: -2px; }
 
-        .content-grid {
-            padding: 40px 60px;
+        .workspace-container {
+            padding: 50px 60px;
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 40px;
+            grid-template-columns: 1fr 340px;
+            gap: 50px;
             max-width: 1400px;
-            margin: 0 auto;
             width: 100%;
+            margin: 0 auto;
         }
 
-        /* --- EDITOR CORE --- */
-        .editor-container {
+        /* EDITOR CORE */
+        .editor-wrapper {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 28px;
+            padding: 45px;
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
         }
 
-        .editor-input-title {
+        .input-title {
             background: transparent;
             border: none;
-            font-size: 2.25rem;
+            font-size: 2.4rem;
             font-weight: 800;
-            color: var(--text);
+            color: var(--text-main);
             width: 100%;
             letter-spacing: -1px;
         }
 
-        .editor-textarea {
+        .input-body {
             background: transparent;
             border: none;
-            color: var(--text-dim);
             font-size: 1.15rem;
+            color: var(--text-dim);
             line-height: 1.8;
-            width: 100%;
-            min-height: 400px;
+            min-height: 450px;
             resize: none;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            width: 100%;
         }
 
-        .editor-toolbar {
+        .editor-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 25px;
+            padding-top: 30px;
             border-top: 1px solid var(--border);
         }
 
-        .toolbar-info { font-size: 0.8rem; color: var(--text-ultra-dim); font-family: 'JetBrains Mono', monospace; }
+        .word-stats { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-ghost); }
 
-        .btn {
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 700;
+        .btn-save-main {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 14px;
+            font-weight: 800;
             cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent;
+            transition: var(--transition);
             font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .btn-primary { background: var(--accent); color: black; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
-        .btn-ghost { background: transparent; border-color: var(--border); color: var(--text-dim); }
-        .btn-ghost:hover { border-color: var(--text-dim); color: white; }
+        .btn-save-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
 
-        /* --- TODO & ANALYTICS --- */
-        .side-panel { display: flex; flex-direction: column; gap: 30px; }
-
-        .panel-card {
+        /* TODO & PANELS */
+        .panel-stack { display: flex; flex-direction: column; gap: 30px; }
+        
+        .panel-item {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 24px;
-            padding: 25px;
+            padding: 30px;
         }
 
-        .panel-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .panel-h3 { font-size: 1rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
 
-        .todo-input-wrap { display: flex; gap: 10px; margin-bottom: 20px; }
-        .todo-field { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 0.9rem; }
+        .todo-entry { display: flex; gap: 10px; margin-bottom: 20px; }
+        .todo-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 15px;
+            color: white;
+            font-size: 0.85rem;
+        }
 
-        .todo-list { list-style: none; }
         .todo-item {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
             padding: 12px;
-            background: rgba(255,255,255,0.02);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            border: 1px solid transparent;
+            border-bottom: 1px solid var(--border);
             transition: 0.2s;
+            cursor: pointer;
         }
 
-        .todo-item:hover { border-color: var(--border); background: rgba(255,255,255,0.04); }
-        .todo-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--primary); cursor: pointer; }
-        .todo-text { font-size: 0.9rem; color: var(--text-dim); flex: 1; line-height: 1.4; }
-        .todo-item.done .todo-text { text-decoration: line-through; color: var(--text-ultra-dim); }
+        .todo-item:hover { background: rgba(255,255,255,0.02); }
+        .todo-checkbox { width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--text-ghost); }
+        .todo-item.completed .todo-text { text-decoration: line-through; color: var(--text-ghost); }
+        .todo-text { font-size: 0.9rem; font-weight: 500; }
 
-        /* --- TOAST & OVERLAYS --- */
-        #notification {
+        /* TOAST NOTIFICATION */
+        #toast {
             position: fixed;
             bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
+            right: 40px;
             background: var(--accent);
             color: black;
-            padding: 14px 28px;
-            border-radius: 50px;
+            padding: 15px 30px;
+            border-radius: 15px;
             font-weight: 800;
-            font-size: 0.9rem;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: var(--shadow);
+            transform: translateY(150px);
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
         }
 
-        #notification.show { transform: translateX(-50%) translateY(0); }
+        #toast.active { transform: translateY(0); }
 
-        /* --- ANIMATIONS --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate { animation: fadeIn 0.4s ease forwards; }
-
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            .workspace-container { grid-template-columns: 1fr; }
+            aside { display: none; }
+        }
     </style>
 </head>
-<body>
+<body class="theme-midnight">
 
     <aside>
-        <div class="brand-container">
-            <div class="brand-logo">R</div>
-            <div class="brand-name">reldo note.</div>
-        </div>
-
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchNotes" placeholder="Notizen durchsuchen..." oninput="app.search()">
-        </div>
-
-        <div class="nav-group">
-            <div class="nav-label">Workspace</div>
-            <div class="nav-item active">
-                <span>📓 Journal</span>
-            </div>
-            <div class="nav-item" onclick="app.exportData()">
-                <span>📤 Export (.json)</span>
-            </div>
-            <div class="nav-item" onclick="app.importData()">
-                <span>📥 Import</span>
+        <div class="brand-section">
+            <div class="brand-icon">R</div>
+            <div class="brand-text">
+                <h1>reldo note</h1>
+                <p>Advanced Version</p>
             </div>
         </div>
 
-        <div class="nav-group">
-            <div class="nav-label">System</div>
-            <div class="nav-item" style="color: var(--danger)" onclick="app.hardReset()">
-                <span>⚠️ Factory Reset</span>
-            </div>
+        <div class="nav-label">Atmosphäre</div>
+        <div class="theme-grid">
+            <div class="theme-btn" onclick="app.setTheme('midnight')">Midnight</div>
+            <div class="theme-btn" onclick="app.setTheme('forest')">Forest</div>
+            <div class="theme-btn" onclick="app.setTheme('sunset')">Sunset</div>
+            <div class="theme-btn" onclick="app.setTheme('royal')">Royal</div>
+            <div class="theme-btn" onclick="app.setTheme('slate')">Slate</div>
+            <div class="theme-btn" onclick="app.setTheme('default')">Deep</div>
         </div>
 
-        <div class="cal-container">
-            <div class="cal-header">
-                <span id="calMonthDisplay">Februar 2026</span>
+        <div class="nav-label">Datenverwaltung</div>
+        <div class="action-group">
+            <button class="action-btn" onclick="app.exportData()">
+                <span>📤</span> Backup exportieren
+            </button>
+            <button class="action-btn" onclick="app.importData()">
+                <span>📥</span> Daten importieren
+            </button>
+            <button class="action-btn danger" onclick="app.hardReset()">
+                <span>⚠️</span> Datenbank löschen
+            </button>
+        </div>
+
+        <div class="calendar-widget">
+            <div class="cal-head">
+                <span id="monthYear">Februar 2026</span>
             </div>
-            <div class="cal-grid" id="calendarGrid">
+            <div class="cal-grid" id="calGrid">
                 </div>
         </div>
     </aside>
 
     <main>
         <header>
-            <div class="header-info">
-                <h1 id="activeDateDisplay">Heute</h1>
-                <p id="fullDateString">Samstag, 7. Februar 2026</p>
+            <div class="welcome-text">
+                <h2 id="viewTitle">Heute</h2>
+                <p id="fullDateDisplay">Samstag, 7. Februar 2026</p>
             </div>
-            <div class="stats-strip">
-                <div class="stat-item">
-                    <span class="stat-value" id="statNotes">0</span>
-                    <span class="stat-label">Einträge</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value" id="statChars">0</span>
-                    <span class="stat-label">Wörter</span>
-                </div>
+            <div class="header-meta">
+                <div id="live-clock">00:00:00</div>
             </div>
         </header>
 
-        <div class="content-grid">
-            <div class="editor-area animate">
-                <div class="editor-container">
-                    <input type="text" id="editorTitle" class="editor-input-title" placeholder="Titel der Notiz...">
-                    <textarea id="editorBody" class="editor-textarea" placeholder="Worüber denkst du nach? Nutze Markdown für Struktur..."></textarea>
-                    
-                    <div class="editor-toolbar">
-                        <div class="toolbar-info">
-                            <span id="charCount">0</span> Zeichen • <span id="wordCount">0</span> Wörter
-                        </div>
-                        <div style="display: flex; gap: 12px;">
-                            <button class="btn btn-ghost" onclick="app.clearCurrent()">Verwerfen</button>
-                            <button class="btn btn-primary" onclick="app.saveNote()">Eintrag speichern</button>
-                        </div>
+        <div class="workspace-container">
+            <section class="editor-wrapper">
+                <input type="text" id="mainTitle" class="input-title" placeholder="Titel der Notiz...">
+                <textarea id="mainBody" class="input-body" placeholder="Beginne mit deinen Gedanken..."></textarea>
+                
+                <div class="editor-footer">
+                    <div class="word-stats">
+                        <span id="charCount">0</span> Zeichen | <span id="wordCount">0</span> Wörter
                     </div>
+                    <button class="btn-save-main" onclick="app.saveEntry()">Eintrag sichern</button>
                 </div>
-            </div>
+            </section>
 
-            <div class="side-panel animate" style="animation-delay: 0.1s">
-                <div class="panel-card">
-                    <div class="panel-title">
-                        To-Do Fokus
-                        <span style="font-size: 0.7rem; color: var(--primary)" id="todoCount">0 Offen</span>
+            <section class="panel-stack">
+                <div class="panel-item">
+                    <h3 class="panel-h3">⚡ Tages-Fokus</h3>
+                    <div class="todo-entry">
+                        <input type="text" id="todoIn" class="todo-input" placeholder="Neue Aufgabe...">
+                        <button class="btn-save-main" style="padding: 10px 15px;" onclick="app.addTodo()">+</button>
                     </div>
-                    <div class="todo-input-wrap">
-                        <input type="text" id="todoIn" class="todo-field" placeholder="Fokus-Task hinzufügen..." onkeypress="if(event.key==='Enter') app.addTodo()">
-                    </div>
-                    <div class="todo-list" id="todoList">
+                    <div id="todoList">
                         </div>
                 </div>
 
-                <div class="panel-card">
-                    <div class="panel-title">Aktivitäts-Log</div>
-                    <div style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.6;">
-                        Deine Daten werden lokal in deinem Browser verschlüsselt gespeichert. Kein Server-Tracking aktiv.
-                        <div style="margin-top: 15px; padding: 10px; background: var(--bg); border-radius: 8px; font-family: 'JetBrains Mono'">
-                            v2.4.0-stable
-                        </div>
-                    </div>
+                <div class="panel-item">
+                    <h3 class="panel-h3">📊 Statistik</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;">
+                        Du hast diesen Monat an <strong id="statDays">0</strong> Tagen Notizen verfasst. Deine Datenbank umfasst aktuell <strong id="statTotal">0</strong> KB.
+                    </p>
                 </div>
-            </div>
+            </section>
         </div>
     </main>
 
-    <div id="notification">Aktion erfolgreich</div>
+    <div id="toast">Erfolgreich gespeichert</div>
 
     <script>
         /**
-         * RELDO NOTE - PROFESSIONAL ENGINE
-         * Version: 2.4.0
-         * Architektur: Modularer Singleton
+         * RELDO NOTE - PROFESSIONAL CORE ENGINE
+         * Logic: Local-Persistence, Theme-Engine, Calendar-Matrix
          */
         
-        class ReldoEngine {
+        class ReldoNotePro {
             constructor() {
-                // Datenbank-Initialisierung
-                const saved = localStorage.getItem('reldo_pro_v2');
-                this.data = saved ? JSON.parse(saved) : {
+                this.storageKey = 'reldo_note_pro_db';
+                this.db = JSON.parse(localStorage.getItem(this.storageKey)) || {
                     notes: {},
                     todos: [],
-                    settings: { theme: 'dark', lastActive: null }
+                    config: { theme: 'midnight' }
                 };
-
-                this.currentDateKey = this.formatDateKey(new Date());
-                this.selectedDateKey = this.currentDateKey;
                 
+                this.selectedDate = this.getFormattedDate(new Date());
                 this.init();
             }
 
             init() {
-                this.updateClock();
+                this.applyTheme(this.db.config.theme);
+                this.setupClock();
                 this.renderCalendar();
-                this.loadNote(this.selectedDateKey);
+                this.loadEntry();
                 this.renderTodos();
                 this.updateStats();
-                
-                // Event Listener für Wortzähler
-                document.getElementById('editorBody').addEventListener('input', () => this.handleTyping());
-                
-                setInterval(() => this.updateClock(), 10000); // Sparsame Uhr-Updates
+
+                // Live-Counter Listener
+                document.getElementById('mainBody').addEventListener('input', () => this.updateCounters());
             }
 
-            formatDateKey(date) {
-                const d = new Date(date);
-                return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+            getFormattedDate(date) {
+                return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
             }
 
-            // --- NOTE SYSTEM ---
-            saveNote() {
-                const title = document.getElementById('editorTitle').value.trim();
-                const body = document.getElementById('editorBody').value.trim();
+            // --- THEME ENGINE ---
+            setTheme(name) {
+                this.db.config.theme = name;
+                this.applyTheme(name);
+                this.saveToDisk();
+            }
 
-                if (!body && !title) {
-                    this.notify("Leere Notiz wurde nicht gespeichert");
-                    return;
-                }
+            applyTheme(name) {
+                document.body.className = '';
+                if(name !== 'default') document.body.classList.add(`theme-${name}`);
+                
+                // Button Visuals
+                document.querySelectorAll('.theme-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.innerText.toLowerCase() === name);
+                });
+            }
 
-                this.data.notes[this.selectedDateKey] = {
-                    title: title || "Unbenannter Eintrag",
+            // --- PERSISTENCE ---
+            saveEntry() {
+                const title = document.getElementById('mainTitle').value;
+                const body = document.getElementById('mainBody').value;
+
+                if(!body && !title) return;
+
+                this.db.notes[this.selectedDate] = {
+                    title: title || "Unbenannt",
                     body: body,
-                    lastEdit: new Date().toISOString()
+                    timestamp: new Date().getTime()
                 };
 
-                this.sync();
-                this.notify("Eintrag erfolgreich gesichert");
+                this.saveToDisk();
+                this.showToast("Eintrag erfolgreich gesichert");
                 this.renderCalendar();
                 this.updateStats();
             }
 
-            loadNote(key) {
-                const note = this.data.notes[key] || { title: '', body: '' };
-                document.getElementById('editorTitle').value = note.title;
-                document.getElementById('editorBody').value = note.body;
+            loadEntry() {
+                const entry = this.db.notes[this.selectedDate] || { title: '', body: '' };
+                document.getElementById('mainTitle').value = entry.title;
+                document.getElementById('mainBody').value = entry.body;
                 
-                const display = document.getElementById('activeDateDisplay');
-                display.innerText = (key === this.currentDateKey) ? "Heute" : key;
+                const isToday = this.selectedDate === this.getFormattedDate(new Date());
+                document.getElementById('viewTitle').innerText = isToday ? "Heute" : this.selectedDate;
                 
-                this.handleTyping();
+                this.updateCounters();
             }
 
-            handleTyping() {
-                const body = document.getElementById('editorBody').value;
-                const charCount = body.length;
-                const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
-                
-                document.getElementById('charCount').innerText = charCount;
-                document.getElementById('wordCount').innerText = wordCount;
-            }
-
-            clearCurrent() {
-                if(confirm("Möchtest du die Änderungen wirklich verwerfen?")) {
-                    this.loadNote(this.selectedDateKey);
-                }
-            }
-
-            search() {
-                const term = document.getElementById('searchNotes').value.toLowerCase();
-                if(!term) {
-                    this.notify("Suche beendet");
-                    return;
-                }
-                
-                const results = Object.keys(this.data.notes).filter(key => {
-                    return this.data.notes[key].title.toLowerCase().includes(term) || 
-                           this.data.notes[key].body.toLowerCase().includes(term);
-                });
-
-                if(results.length > 0) {
-                    this.selectDate(results[0]);
-                    this.notify(`${results.length} Treffer gefunden`);
-                }
+            saveToDisk() {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.db));
             }
 
             // --- TODO SYSTEM ---
             addTodo() {
                 const input = document.getElementById('todoIn');
-                const text = input.value.trim();
-                if(!text) return;
+                if(!input.value) return;
 
-                this.data.todos.push({
+                this.db.todos.push({
                     id: Date.now(),
-                    text: text,
-                    completed: false,
-                    created: new Date().toISOString()
+                    text: input.value,
+                    completed: false
                 });
 
                 input.value = '';
                 this.renderTodos();
-                this.sync();
+                this.saveToDisk();
             }
 
             toggleTodo(id) {
-                const todo = this.data.todos.find(t => t.id === id);
+                const todo = this.db.todos.find(t => t.id === id);
                 if(todo) todo.completed = !todo.completed;
                 this.renderTodos();
-                this.sync();
-            }
-
-            deleteTodo(id) {
-                this.data.todos = this.data.todos.filter(t => t.id !== id);
-                this.renderTodos();
-                this.sync();
+                this.saveToDisk();
             }
 
             renderTodos() {
-                const list = document.getElementById('todoList');
-                list.innerHTML = '';
+                const container = document.getElementById('todoList');
+                container.innerHTML = '';
                 
-                const openTasks = this.data.todos.filter(t => !t.completed).length;
-                document.getElementById('todoCount').innerText = `${openTasks} Offen`;
-
-                this.data.todos.slice().reverse().forEach(todo => {
-                    const item = document.createElement('div');
-                    item.className = `todo-item ${todo.completed ? 'done' : ''}`;
-                    item.innerHTML = `
-                        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="app.toggleTodo(${todo.id})">
-                        <div class="todo-text">${this.escapeHtml(todo.text)}</div>
-                        <span style="color: var(--text-ultra-dim); cursor: pointer; font-size: 0.7rem;" onclick="app.deleteTodo(${todo.id})">Entfernen</span>
+                this.db.todos.slice().reverse().forEach(todo => {
+                    const el = document.createElement('div');
+                    el.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                    el.innerHTML = `
+                        <div class="todo-checkbox" style="background: ${todo.completed ? 'var(--primary)' : 'transparent'}"></div>
+                        <span class="todo-text">${todo.text}</span>
                     `;
-                    list.appendChild(item);
+                    el.onclick = () => this.toggleTodo(todo.id);
+                    container.appendChild(el);
                 });
             }
 
-            // --- CALENDAR LOGIC ---
+            // --- CALENDAR SYSTEM ---
             renderCalendar() {
-                const grid = document.getElementById('calendarGrid');
+                const grid = document.getElementById('calGrid');
                 grid.innerHTML = '';
                 
                 const now = new Date();
-                const month = now.getMonth();
                 const year = now.getFullYear();
-                
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                
-                // Labels
-                ['M','D','M','D','F','S','S'].forEach(day => {
-                    const el = document.createElement('div');
-                    el.className = 'cal-day-label';
-                    el.innerText = day;
-                    grid.appendChild(el);
+                const month = now.getMonth();
+
+                const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+                document.getElementById('monthYear').innerText = `${monthNames[month]} ${year}`;
+
+                // Header Labels
+                ['M','D','M','D','F','S','S'].forEach(d => {
+                    const label = document.createElement('div');
+                    label.className = 'cal-day-name';
+                    label.innerText = d;
+                    grid.appendChild(label);
                 });
 
-                // Spacing
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
                 const offset = firstDay === 0 ? 6 : firstDay - 1;
+
                 for(let i=0; i<offset; i++) grid.appendChild(document.createElement('div'));
 
-                // Days
                 for(let d=1; d<=daysInMonth; d++) {
                     const key = `${d}.${month + 1}.${year}`;
                     const cell = document.createElement('div');
                     cell.className = 'cal-cell';
-                    if(key === this.currentDateKey) cell.classList.add('today');
-                    if(key === this.selectedDateKey) cell.classList.add('selected');
-                    if(this.data.notes[key]) cell.classList.add('has-note');
+                    if(key === this.selectedDate) cell.classList.add('selected');
+                    if(key === this.getFormattedDate(now)) cell.classList.add('today');
+                    if(this.db.notes[key]) cell.classList.add('has-content');
                     
                     cell.innerText = d;
                     cell.onclick = () => this.selectDate(key);
                     grid.appendChild(cell);
                 }
-
-                const months = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
-                document.getElementById('calMonthDisplay').innerText = `${months[month]} ${year}`;
             }
 
             selectDate(key) {
-                this.selectedDateKey = key;
+                this.selectedDate = key;
                 this.renderCalendar();
-                this.loadNote(key);
+                this.loadEntry();
             }
 
-            // --- DATA CORE ---
-            sync() {
-                localStorage.setItem('reldo_pro_v2', JSON.stringify(this.data));
+            // --- UTILS ---
+            updateCounters() {
+                const body = document.getElementById('mainBody').value;
+                document.getElementById('charCount').innerText = body.length;
+                document.getElementById('wordCount').innerText = body.trim() ? body.trim().split(/\s+/).length : 0;
             }
 
             updateStats() {
-                const noteCount = Object.keys(this.data.notes).length;
-                let totalWords = 0;
-                Object.values(this.data.notes).forEach(n => {
-                    totalWords += n.body.trim() ? n.body.trim().split(/\s+/).length : 0;
-                });
-
-                document.getElementById('statNotes').innerText = noteCount;
-                document.getElementById('statChars').innerText = totalWords;
+                const days = Object.keys(this.db.notes).length;
+                const size = new Blob([JSON.stringify(this.db)]).size / 1024;
+                document.getElementById('statDays').innerText = days;
+                document.getElementById('statTotal').innerText = size.toFixed(2);
             }
 
-            notify(msg) {
-                const n = document.getElementById('notification');
-                n.innerText = msg;
-                n.classList.add('show');
-                setTimeout(() => n.classList.remove('show'), 3000);
+            setupClock() {
+                const clock = document.getElementById('live-clock');
+                const dateDisp = document.getElementById('fullDateDisplay');
+                
+                const update = () => {
+                    const now = new Date();
+                    clock.innerText = now.toLocaleTimeString('de-DE');
+                    dateDisp.innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                };
+                setInterval(update, 1000);
+                update();
             }
 
-            updateClock() {
-                const now = new Date();
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                document.getElementById('fullDateString').innerText = now.toLocaleDateString('de-DE', options);
+            showToast(msg) {
+                const t = document.getElementById('toast');
+                t.innerText = msg;
+                t.classList.add('active');
+                setTimeout(() => t.classList.remove('active'), 3000);
             }
 
             exportData() {
-                const blob = new Blob([JSON.stringify(this.data)], {type: 'application/json'});
+                const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `reldo_backup_${this.currentDateKey}.json`;
+                a.download = `reldo_note_backup_${this.selectedDate}.json`;
                 a.click();
             }
 
@@ -659,9 +655,9 @@
                 input.onchange = e => {
                     const file = e.target.files[0];
                     const reader = new FileReader();
-                    reader.onload = event => {
-                        this.data = JSON.parse(event.target.result);
-                        this.sync();
+                    reader.onload = x => {
+                        this.db = JSON.parse(x.target.result);
+                        this.saveToDisk();
                         location.reload();
                     };
                     reader.readAsText(file);
@@ -670,21 +666,15 @@
             }
 
             hardReset() {
-                if(confirm("ACHTUNG: Alle Daten werden unwiderruflich gelöscht. Fortfahren?")) {
-                    localStorage.removeItem('reldo_pro_v2');
+                if(confirm("Bist du sicher? Alle Notizen und Aufgaben werden unwiderruflich gelöscht!")) {
+                    localStorage.removeItem(this.storageKey);
                     location.reload();
                 }
             }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
         }
 
-        // App-Instanz starten
-        const app = new ReldoEngine();
+        // Initialisierung der Instanz
+        const app = new ReldoNotePro();
     </script>
 </body>
 </html>
