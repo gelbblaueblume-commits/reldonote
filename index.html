@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reldo note | Aura Edition</title>
+    <title>reldo note | Mood Tracker Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* RELDO NOTE - AURA DESIGN SYSTEM */
+        /* RELDO NOTE - AURA MOOD SYSTEM */
         :root {
             --bg: #0d0f14;
             --surface: #161920;
@@ -23,7 +23,6 @@
             --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* THEME MATRIX - SOFTER PALETTE */
         body.theme-midnight { --bg: #0f1117; --surface: #1a1d26; --primary: #6366f1; }
         body.theme-forest { --bg: #0d1210; --surface: #161e1a; --primary: #52b788; }
         body.theme-sunset { --bg: #140f10; --surface: #1e1617; --primary: #fb7185; }
@@ -178,6 +177,7 @@
 
         .btn-save-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); opacity: 0.9; }
 
+        /* MOOD SELECTOR STYLES */
         .panel-item {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: 20px; padding: 25px; margin-bottom: 25px;
@@ -185,21 +185,45 @@
 
         .panel-h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main); }
 
-        .todo-entry { display: flex; gap: 8px; margin-bottom: 15px; }
-        .todo-input {
-            flex: 1; background: var(--bg); border: 1px solid var(--border);
-            border-radius: 10px; padding: 10px; color: white; font-size: 0.8rem;
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
-        .todo-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px;
-            border-radius: 10px; transition: 0.2s; cursor: pointer;
+        .mood-circle {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-ghost);
+            background: rgba(255,255,255,0.02);
         }
 
-        .todo-item:hover { background: rgba(255,255,255,0.03); }
-        .todo-checkbox { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--text-ghost); transition: 0.2s; }
-        .todo-item.completed .todo-text { text-decoration: line-through; color: var(--text-ghost); }
-        .todo-text { font-size: 0.85rem; font-weight: 500; color: var(--text-dim); }
+        .mood-circle:hover { border-color: var(--text-dim); transform: scale(1.1); color: white; }
+        .mood-circle.active { 
+            background: var(--primary); 
+            color: white; 
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
+        }
+
+        .mood-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--text-ghost);
+            margin-top: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
 
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -219,7 +243,7 @@
             <div class="brand-icon">R</div>
             <div class="brand-text">
                 <h1>reldo note</h1>
-                <p>Aura Experience</p>
+                <p>Mood Engine v2</p>
             </div>
         </div>
 
@@ -261,23 +285,34 @@
                 <textarea id="mainBody" class="input-body" placeholder="Was beschäftigt dich heute?"></textarea>
                 <div class="editor-footer">
                     <div class="word-stats"><span id="wordCount">0</span> Wörter | <span id="charCount">0</span> Zeichen</div>
-                    <button class="btn-save-main" onclick="app.saveEntry()">Eintrag sichern</button>
+                    <button class="btn-save-main" onclick="app.saveEntry()">Eintrag & Stimmung sichern</button>
                 </div>
             </section>
 
             <section>
                 <div class="panel-item">
-                    <h3 class="panel-h3">⚡ Tages-Fokus</h3>
-                    <div class="todo-entry">
-                        <input type="text" id="todoIn" class="todo-input" placeholder="Neue Aufgabe...">
-                        <button class="btn-save-main" style="padding: 10px;" onclick="app.addTodo()">+</button>
+                    <h3 class="panel-h3">✨ Wie war dein Tag?</h3>
+                    <div class="mood-grid" id="moodSelector">
+                        <div class="mood-circle" onclick="app.setMood(1)">1</div>
+                        <div class="mood-circle" onclick="app.setMood(2)">2</div>
+                        <div class="mood-circle" onclick="app.setMood(3)">3</div>
+                        <div class="mood-circle" onclick="app.setMood(4)">4</div>
+                        <div class="mood-circle" onclick="app.setMood(5)">5</div>
+                        <div class="mood-circle" onclick="app.setMood(6)">6</div>
+                        <div class="mood-circle" onclick="app.setMood(7)">7</div>
+                        <div class="mood-circle" onclick="app.setMood(8)">8</div>
+                        <div class="mood-circle" onclick="app.setMood(9)">9</div>
+                        <div class="mood-circle" onclick="app.setMood(10)">10</div>
                     </div>
-                    <div id="todoList"></div>
+                    <div class="mood-label">
+                        <span>Schlecht</span>
+                        <span>Großartig</span>
+                    </div>
                 </div>
                 <div class="panel-item">
                     <h3 class="panel-h3">📈 Insight</h3>
                     <p style="font-size: 0.75rem; color: var(--text-ghost); line-height: 1.5;">
-                        Du hast insgesamt <strong id="statDays" style="color:var(--text-dim)">0</strong> Tage dokumentiert. Deine Datenbank belegt <strong id="statTotal" style="color:var(--text-dim)">0</strong> KB.
+                        Du hast insgesamt <strong id="statDays" style="color:var(--text-dim)">0</strong> Tage dokumentiert. Deine durchschnittliche Stimmung liegt bei <strong id="avgMood" style="color:var(--primary)">-</strong>.
                     </p>
                 </div>
             </section>
@@ -287,13 +322,14 @@
     <div id="toast">Änderungen gespeichert</div>
 
     <script>
-        class ReldoAuraEngine {
+        class ReldoMoodEngine {
             constructor() {
-                this.dbKey = 'reldo_aura_v1';
+                this.dbKey = 'reldo_mood_v2';
                 this.db = JSON.parse(localStorage.getItem(this.dbKey)) || {
-                    notes: {}, todos: [], config: { theme: 'midnight' }
+                    notes: {}, config: { theme: 'midnight' }
                 };
                 this.selectedDate = this.fmtDate(new Date());
+                this.currentMood = null;
                 this.init();
             }
 
@@ -302,7 +338,6 @@
                 this.setupTime();
                 this.renderCalendar();
                 this.loadEntry();
-                this.renderTodos();
                 this.updateStats();
                 document.getElementById('mainBody').oninput = () => this.counters();
             }
@@ -315,36 +350,42 @@
                 document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase() === n));
             }
 
+            setMood(val) {
+                this.currentMood = val;
+                this.renderMoods();
+            }
+
+            renderMoods() {
+                document.querySelectorAll('.mood-circle').forEach((c, idx) => {
+                    c.classList.toggle('active', (idx + 1) === this.currentMood);
+                });
+            }
+
             saveEntry() {
                 const t = document.getElementById('mainTitle').value, b = document.getElementById('mainBody').value;
-                if(!t && !b) return;
-                this.db.notes[this.selectedDate] = { title: t || "Unbenannt", body: b };
-                this.sync(); this.toast("Eintrag gesichert"); this.renderCalendar(); this.updateStats();
+                if(!t && !b && !this.currentMood) return;
+                
+                this.db.notes[this.selectedDate] = { 
+                    title: t || "Unbenannt", 
+                    body: b,
+                    mood: this.currentMood 
+                };
+                
+                this.sync(); 
+                this.toast("Alles gesichert"); 
+                this.renderCalendar(); 
+                this.updateStats();
             }
 
             loadEntry() {
-                const e = this.db.notes[this.selectedDate] || { title: '', body: '' };
+                const e = this.db.notes[this.selectedDate] || { title: '', body: '', mood: null };
                 document.getElementById('mainTitle').value = e.title;
                 document.getElementById('mainBody').value = e.body;
+                this.currentMood = e.mood;
+                this.renderMoods();
+                
                 document.getElementById('viewTitle').innerText = this.selectedDate === this.fmtDate(new Date()) ? "Heute" : this.selectedDate;
                 this.counters();
-            }
-
-            addTodo() {
-                const i = document.getElementById('todoIn'); if(!i.value) return;
-                this.db.todos.push({ id: Date.now(), text: i.value, done: false });
-                i.value = ''; this.renderTodos(); this.sync();
-            }
-
-            toggleTodo(id) { const t = this.db.todos.find(x => x.id === id); if(t) t.done = !t.done; this.renderTodos(); this.sync(); }
-
-            renderTodos() {
-                const c = document.getElementById('todoList'); c.innerHTML = '';
-                this.db.todos.slice().reverse().forEach(t => {
-                    const el = document.createElement('div'); el.className = `todo-item ${t.done?'completed':''}`;
-                    el.innerHTML = `<div class="todo-checkbox" style="background:${t.done?'var(--primary)':'transparent'}"></div><span class="todo-text">${t.text}</span>`;
-                    el.onclick = () => this.toggleTodo(t.id); c.appendChild(el);
-                });
             }
 
             renderCalendar() {
@@ -367,8 +408,12 @@
             }
 
             updateStats() {
-                document.getElementById('statDays').innerText = Object.keys(this.db.notes).length;
-                document.getElementById('statTotal').innerText = (new Blob([JSON.stringify(this.db)]).size / 1024).toFixed(2);
+                const entries = Object.values(this.db.notes);
+                const moodDays = entries.filter(e => e.mood !== null);
+                const avg = moodDays.length > 0 ? (moodDays.reduce((acc, curr) => acc + curr.mood, 0) / moodDays.length).toFixed(1) : "-";
+                
+                document.getElementById('statDays').innerText = entries.length;
+                document.getElementById('avgMood').innerText = avg;
             }
 
             setupTime() {
@@ -382,11 +427,11 @@
 
             toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2500); }
             sync() { localStorage.setItem(this.dbKey, JSON.stringify(this.db)); }
-            exportData() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download=`reldo_aura_backup.json`; a.click(); }
+            exportData() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download=`reldo_mood_backup.json`; a.click(); }
             importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = x => { this.db = JSON.parse(x.target.result); this.sync(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); }
             hardReset() { if(confirm("Alle Daten löschen?")) { localStorage.removeItem(this.dbKey); location.reload(); } }
         }
-        const app = new ReldoAuraEngine();
+        const app = new ReldoMoodEngine();
     </script>
 </body>
 </html>
