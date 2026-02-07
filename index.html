@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reldo note | Massive Pro Edition</title>
+    <title>reldo note | Aura Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* RELDO NOTE - ARCHITEKTUR-SYSTEM 
-           DESIGN-SPRACHE: MODERN INDUSTRIAL / MINIMALIST 
-        */
-
+        /* RELDO NOTE - AURA DESIGN SYSTEM */
         :root {
-            /* Basis-Variablen (Default: Deep Space) */
-            --bg: #050505;
-            --surface: #0f0f12;
-            --surface-hover: #16161a;
-            --accent: #ffffff;
-            --primary: #3b82f6;
-            --text-main: #ffffff;
-            --text-dim: #a1a1aa;
-            --text-ghost: #3f3f46;
-            --border: rgba(255, 255, 255, 0.08);
-            --danger: #ef4444;
-            --success: #10b981;
-            --shadow: 0 10px 30px rgba(0,0,0,0.5);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #0d0f14;
+            --surface: #161920;
+            --surface-hover: #1c212b;
+            --accent: #e2e8f0;
+            --primary: #818cf8;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --text-ghost: #475569;
+            --border: rgba(255, 255, 255, 0.05);
+            --danger: #f87171;
+            --success: #34d399;
+            --shadow: 0 15px 40px rgba(0,0,0,0.4);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* THEME ENGINE STYLES */
-        body.theme-midnight { --bg: #0a0e1a; --surface: #121826; --primary: #60a5fa; }
-        body.theme-forest { --bg: #08100a; --surface: #0f1a12; --primary: #34d399; }
-        body.theme-sunset { --bg: #1a0f0f; --surface: #261616; --primary: #f87171; }
-        body.theme-royal { --bg: #0f0a1a; --surface: #1a1226; --primary: #a78bfa; }
+        /* THEME MATRIX - SOFTER PALETTE */
+        body.theme-midnight { --bg: #0f1117; --surface: #1a1d26; --primary: #6366f1; }
+        body.theme-forest { --bg: #0d1210; --surface: #161e1a; --primary: #52b788; }
+        body.theme-sunset { --bg: #140f10; --surface: #1e1617; --primary: #fb7185; }
+        body.theme-royal { --bg: #110f17; --surface: #1b1626; --primary: #a78bfa; }
         body.theme-slate { --bg: #0f172a; --surface: #1e293b; --primary: #38bdf8; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -46,9 +42,9 @@
             transition: var(--transition);
         }
 
-        /* --- SIDEBAR NAVIGATION --- */
+        /* --- SIDEBAR --- */
         aside {
-            width: 320px;
+            width: 310px;
             background: var(--surface);
             border-right: 1px solid var(--border);
             display: flex;
@@ -61,288 +57,159 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 45px;
+            margin-bottom: 40px;
         }
 
         .brand-icon {
-            width: 38px;
-            height: 38px;
-            background: var(--accent);
-            border-radius: 10px;
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), #c084fc);
+            border-radius: 12px;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: black;
-            font-weight: 800;
-            font-size: 1.2rem;
+            align-items: center; justify-content: center;
+            color: white; font-weight: 800; font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .brand-text h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
-        .brand-text p { font-size: 0.65rem; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .brand-text h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
+        .brand-text p { font-size: 0.6rem; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
 
         .nav-label {
-            font-size: 0.7rem;
-            color: var(--text-ghost);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 800;
-            margin: 25px 0 15px 5px;
+            font-size: 0.65rem; color: var(--text-ghost); text-transform: uppercase;
+            letter-spacing: 2px; font-weight: 800; margin: 30px 0 15px 5px;
         }
 
-        /* COLOR PICKER SYSTEM */
-        .theme-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 30px;
-        }
+        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
 
         .theme-btn {
-            height: 45px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-dim);
+            height: 40px; border-radius: 10px; border: 1px solid var(--border);
+            cursor: pointer; transition: var(--transition);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; color: var(--text-dim);
+            background: rgba(255,255,255,0.02);
         }
 
-        .theme-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
-        .theme-btn.active { border-color: var(--primary); background: rgba(255,255,255,0.05); color: white; }
+        .theme-btn:hover { background: var(--surface-hover); border-color: var(--text-ghost); color: white; }
+        .theme-btn.active { border-color: var(--primary); background: rgba(129, 140, 248, 0.1); color: var(--primary); }
 
-        /* ACTIONS SECTION */
-        .action-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .action-group { display: flex; flex-direction: column; gap: 8px; }
 
         .action-btn {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 12px;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            width: 100%; padding: 12px; border-radius: 12px;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 10px;
             transition: var(--transition);
         }
 
-        .action-btn:hover { background: var(--surface-hover); color: var(--accent); border-color: var(--text-ghost); }
-        .action-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+        .action-btn:hover { background: var(--surface-hover); color: white; border-color: var(--text-ghost); }
+        .action-btn.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(248, 113, 113, 0.05); }
 
-        /* CALENDAR COMPONENT */
         .calendar-widget {
-            margin-top: auto;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 18px;
+            margin-top: auto; background: rgba(0,0,0,0.15);
+            border: 1px solid var(--border); border-radius: 20px; padding: 18px;
         }
 
-        .cal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            font-size: 0.8rem;
-            font-weight: 800;
-        }
+        .cal-head { display: flex; justify-content: center; margin-bottom: 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); }
 
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .cal-day-name { font-size: 0.55rem; color: var(--text-ghost); text-align: center; font-weight: 900; margin-bottom: 5px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-day-name { font-size: 0.5rem; color: var(--text-ghost); text-align: center; font-weight: 900; padding-bottom: 5px; }
         
         .cal-cell {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--text-dim);
-            transition: 0.2s;
-            position: relative;
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; border-radius: 8px; cursor: pointer; color: var(--text-dim);
+            transition: 0.2s; position: relative;
         }
 
-        .cal-cell:hover { background: var(--surface-hover); color: white; }
-        .cal-cell.selected { background: var(--accent); color: black; font-weight: 800; }
+        .cal-cell:hover { background: var(--primary); color: white; }
+        .cal-cell.selected { background: var(--accent); color: var(--bg); font-weight: 800; }
         .cal-cell.today { color: var(--primary); font-weight: 900; }
         .cal-cell.has-content::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            width: 3px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 50%;
+            content: ''; position: absolute; bottom: 4px; width: 3px; height: 3px;
+            background: var(--primary); border-radius: 50%;
         }
 
-        /* --- MAIN CONTENT AREA --- */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            background: var(--bg);
-        }
+        /* --- MAIN CONTENT --- */
+        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); position: relative; }
 
         header {
-            padding: 40px 60px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-bottom: 1px solid var(--border);
+            padding: 40px 60px; display: flex; justify-content: space-between;
+            align-items: flex-end; border-bottom: 1px solid var(--border);
         }
 
-        .welcome-text h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
-        .welcome-text p { color: var(--text-dim); margin-top: 5px; font-size: 0.95rem; }
+        .welcome-text h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -1px; color: var(--text-main); }
+        .welcome-text p { color: var(--text-dim); margin-top: 5px; font-size: 0.9rem; }
 
-        .header-meta { text-align: right; }
-        #live-clock { font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 400; letter-spacing: -2px; }
+        #live-clock { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 400; letter-spacing: -1.5px; color: var(--text-ghost); }
 
         .workspace-container {
-            padding: 50px 60px;
-            display: grid;
-            grid-template-columns: 1fr 340px;
-            gap: 50px;
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
+            padding: 40px 60px; display: grid; grid-template-columns: 1fr 320px;
+            gap: 40px; max-width: 1300px; width: 100%; margin: 0 auto;
         }
 
-        /* EDITOR CORE */
         .editor-wrapper {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 45px;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px; padding: 40px; box-shadow: var(--shadow);
+            display: flex; flex-direction: column; gap: 20px;
         }
 
         .input-title {
-            background: transparent;
-            border: none;
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: var(--text-main);
-            width: 100%;
-            letter-spacing: -1px;
+            background: transparent; border: none; font-size: 2.2rem;
+            font-weight: 800; color: var(--text-main); width: 100%; letter-spacing: -1px;
         }
 
         .input-body {
-            background: transparent;
-            border: none;
-            font-size: 1.15rem;
-            color: var(--text-dim);
-            line-height: 1.8;
-            min-height: 450px;
-            resize: none;
-            width: 100%;
+            background: transparent; border: none; font-size: 1.1rem;
+            color: var(--text-dim); line-height: 1.7; min-height: 400px;
+            resize: none; width: 100%; font-family: 'Plus Jakarta Sans';
         }
 
         .editor-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding-top: 25px; border-top: 1px solid var(--border);
         }
 
-        .word-stats { font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--text-ghost); }
+        .word-stats { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-ghost); }
 
         .btn-save-main {
-            background: var(--accent);
-            color: black;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 14px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: var(--transition);
-            font-size: 0.9rem;
+            background: var(--primary); color: white; border: none;
+            padding: 12px 30px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; transition: var(--transition); font-size: 0.85rem;
         }
 
-        .btn-save-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255,255,255,0.1); }
+        .btn-save-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); opacity: 0.9; }
 
-        /* TODO & PANELS */
-        .panel-stack { display: flex; flex-direction: column; gap: 30px; }
-        
         .panel-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 20px; padding: 25px; margin-bottom: 25px;
         }
 
-        .panel-h3 { font-size: 1rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .panel-h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main); }
 
-        .todo-entry { display: flex; gap: 10px; margin-bottom: 20px; }
+        .todo-entry { display: flex; gap: 8px; margin-bottom: 15px; }
         .todo-input {
-            flex: 1;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 15px;
-            color: white;
-            font-size: 0.85rem;
+            flex: 1; background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px; color: white; font-size: 0.8rem;
         }
 
         .todo-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            transition: 0.2s;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 10px; padding: 10px;
+            border-radius: 10px; transition: 0.2s; cursor: pointer;
         }
 
-        .todo-item:hover { background: rgba(255,255,255,0.02); }
-        .todo-checkbox { width: 18px; height: 18px; border-radius: 5px; border: 1px solid var(--text-ghost); }
+        .todo-item:hover { background: rgba(255,255,255,0.03); }
+        .todo-checkbox { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--text-ghost); transition: 0.2s; }
         .todo-item.completed .todo-text { text-decoration: line-through; color: var(--text-ghost); }
-        .todo-text { font-size: 0.9rem; font-weight: 500; }
+        .todo-text { font-size: 0.85rem; font-weight: 500; color: var(--text-dim); }
 
-        /* TOAST NOTIFICATION */
         #toast {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            background: var(--accent);
-            color: black;
-            padding: 15px 30px;
-            border-radius: 15px;
-            font-weight: 800;
-            box-shadow: var(--shadow);
-            transform: translateY(150px);
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--primary); color: white; padding: 12px 25px;
+            border-radius: 12px; font-weight: 700; font-size: 0.85rem;
+            box-shadow: var(--shadow); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
         }
 
-        #toast.active { transform: translateY(0); }
-
-        /* RESPONSIVE */
-        @media (max-width: 1100px) {
-            .workspace-container { grid-template-columns: 1fr; }
-            aside { display: none; }
-        }
+        #toast.active { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="theme-midnight">
@@ -352,7 +219,7 @@
             <div class="brand-icon">R</div>
             <div class="brand-text">
                 <h1>reldo note</h1>
-                <p>Advanced Version</p>
+                <p>Aura Experience</p>
             </div>
         </div>
 
@@ -363,28 +230,19 @@
             <div class="theme-btn" onclick="app.setTheme('sunset')">Sunset</div>
             <div class="theme-btn" onclick="app.setTheme('royal')">Royal</div>
             <div class="theme-btn" onclick="app.setTheme('slate')">Slate</div>
-            <div class="theme-btn" onclick="app.setTheme('default')">Deep</div>
+            <div class="theme-btn" onclick="app.setTheme('default')">Aura</div>
         </div>
 
-        <div class="nav-label">Datenverwaltung</div>
+        <div class="nav-label">System</div>
         <div class="action-group">
-            <button class="action-btn" onclick="app.exportData()">
-                <span>📤</span> Backup exportieren
-            </button>
-            <button class="action-btn" onclick="app.importData()">
-                <span>📥</span> Daten importieren
-            </button>
-            <button class="action-btn danger" onclick="app.hardReset()">
-                <span>⚠️</span> Datenbank löschen
-            </button>
+            <button class="action-btn" onclick="app.exportData()">📤 Backup</button>
+            <button class="action-btn" onclick="app.importData()">📥 Restore</button>
+            <button class="action-btn danger" onclick="app.hardReset()">⚠️ Reset</button>
         </div>
 
         <div class="calendar-widget">
-            <div class="cal-head">
-                <span id="monthYear">Februar 2026</span>
-            </div>
-            <div class="cal-grid" id="calGrid">
-                </div>
+            <div class="cal-head"><span id="monthYear">Februar 2026</span></div>
+            <div class="cal-grid" id="calGrid"></div>
         </div>
     </aside>
 
@@ -392,289 +250,143 @@
         <header>
             <div class="welcome-text">
                 <h2 id="viewTitle">Heute</h2>
-                <p id="fullDateDisplay">Samstag, 7. Februar 2026</p>
+                <p id="fullDateDisplay">Laden...</p>
             </div>
-            <div class="header-meta">
-                <div id="live-clock">00:00:00</div>
-            </div>
+            <div id="live-clock">00:00:00</div>
         </header>
 
         <div class="workspace-container">
             <section class="editor-wrapper">
-                <input type="text" id="mainTitle" class="input-title" placeholder="Titel der Notiz...">
-                <textarea id="mainBody" class="input-body" placeholder="Beginne mit deinen Gedanken..."></textarea>
-                
+                <input type="text" id="mainTitle" class="input-title" placeholder="Titel...">
+                <textarea id="mainBody" class="input-body" placeholder="Was beschäftigt dich heute?"></textarea>
                 <div class="editor-footer">
-                    <div class="word-stats">
-                        <span id="charCount">0</span> Zeichen | <span id="wordCount">0</span> Wörter
-                    </div>
+                    <div class="word-stats"><span id="wordCount">0</span> Wörter | <span id="charCount">0</span> Zeichen</div>
                     <button class="btn-save-main" onclick="app.saveEntry()">Eintrag sichern</button>
                 </div>
             </section>
 
-            <section class="panel-stack">
+            <section>
                 <div class="panel-item">
                     <h3 class="panel-h3">⚡ Tages-Fokus</h3>
                     <div class="todo-entry">
                         <input type="text" id="todoIn" class="todo-input" placeholder="Neue Aufgabe...">
-                        <button class="btn-save-main" style="padding: 10px 15px;" onclick="app.addTodo()">+</button>
+                        <button class="btn-save-main" style="padding: 10px;" onclick="app.addTodo()">+</button>
                     </div>
-                    <div id="todoList">
-                        </div>
+                    <div id="todoList"></div>
                 </div>
-
                 <div class="panel-item">
-                    <h3 class="panel-h3">📊 Statistik</h3>
-                    <p style="font-size: 0.8rem; color: var(--text-dim); line-height: 1.6;">
-                        Du hast diesen Monat an <strong id="statDays">0</strong> Tagen Notizen verfasst. Deine Datenbank umfasst aktuell <strong id="statTotal">0</strong> KB.
+                    <h3 class="panel-h3">📈 Insight</h3>
+                    <p style="font-size: 0.75rem; color: var(--text-ghost); line-height: 1.5;">
+                        Du hast insgesamt <strong id="statDays" style="color:var(--text-dim)">0</strong> Tage dokumentiert. Deine Datenbank belegt <strong id="statTotal" style="color:var(--text-dim)">0</strong> KB.
                     </p>
                 </div>
             </section>
         </div>
     </main>
 
-    <div id="toast">Erfolgreich gespeichert</div>
+    <div id="toast">Änderungen gespeichert</div>
 
     <script>
-        /**
-         * RELDO NOTE - PROFESSIONAL CORE ENGINE
-         * Logic: Local-Persistence, Theme-Engine, Calendar-Matrix
-         */
-        
-        class ReldoNotePro {
+        class ReldoAuraEngine {
             constructor() {
-                this.storageKey = 'reldo_note_pro_db';
-                this.db = JSON.parse(localStorage.getItem(this.storageKey)) || {
-                    notes: {},
-                    todos: [],
-                    config: { theme: 'midnight' }
+                this.dbKey = 'reldo_aura_v1';
+                this.db = JSON.parse(localStorage.getItem(this.dbKey)) || {
+                    notes: {}, todos: [], config: { theme: 'midnight' }
                 };
-                
-                this.selectedDate = this.getFormattedDate(new Date());
+                this.selectedDate = this.fmtDate(new Date());
                 this.init();
             }
 
             init() {
                 this.applyTheme(this.db.config.theme);
-                this.setupClock();
+                this.setupTime();
                 this.renderCalendar();
                 this.loadEntry();
                 this.renderTodos();
                 this.updateStats();
-
-                // Live-Counter Listener
-                document.getElementById('mainBody').addEventListener('input', () => this.updateCounters());
+                document.getElementById('mainBody').oninput = () => this.counters();
             }
 
-            getFormattedDate(date) {
-                return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+            fmtDate(d) { return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`; }
+
+            setTheme(n) { this.db.config.theme = n; this.applyTheme(n); this.sync(); }
+            applyTheme(n) {
+                document.body.className = n === 'default' ? '' : `theme-${n}`;
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase() === n));
             }
 
-            // --- THEME ENGINE ---
-            setTheme(name) {
-                this.db.config.theme = name;
-                this.applyTheme(name);
-                this.saveToDisk();
-            }
-
-            applyTheme(name) {
-                document.body.className = '';
-                if(name !== 'default') document.body.classList.add(`theme-${name}`);
-                
-                // Button Visuals
-                document.querySelectorAll('.theme-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.innerText.toLowerCase() === name);
-                });
-            }
-
-            // --- PERSISTENCE ---
             saveEntry() {
-                const title = document.getElementById('mainTitle').value;
-                const body = document.getElementById('mainBody').value;
-
-                if(!body && !title) return;
-
-                this.db.notes[this.selectedDate] = {
-                    title: title || "Unbenannt",
-                    body: body,
-                    timestamp: new Date().getTime()
-                };
-
-                this.saveToDisk();
-                this.showToast("Eintrag erfolgreich gesichert");
-                this.renderCalendar();
-                this.updateStats();
+                const t = document.getElementById('mainTitle').value, b = document.getElementById('mainBody').value;
+                if(!t && !b) return;
+                this.db.notes[this.selectedDate] = { title: t || "Unbenannt", body: b };
+                this.sync(); this.toast("Eintrag gesichert"); this.renderCalendar(); this.updateStats();
             }
 
             loadEntry() {
-                const entry = this.db.notes[this.selectedDate] || { title: '', body: '' };
-                document.getElementById('mainTitle').value = entry.title;
-                document.getElementById('mainBody').value = entry.body;
-                
-                const isToday = this.selectedDate === this.getFormattedDate(new Date());
-                document.getElementById('viewTitle').innerText = isToday ? "Heute" : this.selectedDate;
-                
-                this.updateCounters();
+                const e = this.db.notes[this.selectedDate] || { title: '', body: '' };
+                document.getElementById('mainTitle').value = e.title;
+                document.getElementById('mainBody').value = e.body;
+                document.getElementById('viewTitle').innerText = this.selectedDate === this.fmtDate(new Date()) ? "Heute" : this.selectedDate;
+                this.counters();
             }
 
-            saveToDisk() {
-                localStorage.setItem(this.storageKey, JSON.stringify(this.db));
-            }
-
-            // --- TODO SYSTEM ---
             addTodo() {
-                const input = document.getElementById('todoIn');
-                if(!input.value) return;
-
-                this.db.todos.push({
-                    id: Date.now(),
-                    text: input.value,
-                    completed: false
-                });
-
-                input.value = '';
-                this.renderTodos();
-                this.saveToDisk();
+                const i = document.getElementById('todoIn'); if(!i.value) return;
+                this.db.todos.push({ id: Date.now(), text: i.value, done: false });
+                i.value = ''; this.renderTodos(); this.sync();
             }
 
-            toggleTodo(id) {
-                const todo = this.db.todos.find(t => t.id === id);
-                if(todo) todo.completed = !todo.completed;
-                this.renderTodos();
-                this.saveToDisk();
-            }
+            toggleTodo(id) { const t = this.db.todos.find(x => x.id === id); if(t) t.done = !t.done; this.renderTodos(); this.sync(); }
 
             renderTodos() {
-                const container = document.getElementById('todoList');
-                container.innerHTML = '';
-                
-                this.db.todos.slice().reverse().forEach(todo => {
-                    const el = document.createElement('div');
-                    el.className = `todo-item ${todo.completed ? 'completed' : ''}`;
-                    el.innerHTML = `
-                        <div class="todo-checkbox" style="background: ${todo.completed ? 'var(--primary)' : 'transparent'}"></div>
-                        <span class="todo-text">${todo.text}</span>
-                    `;
-                    el.onclick = () => this.toggleTodo(todo.id);
-                    container.appendChild(el);
+                const c = document.getElementById('todoList'); c.innerHTML = '';
+                this.db.todos.slice().reverse().forEach(t => {
+                    const el = document.createElement('div'); el.className = `todo-item ${t.done?'completed':''}`;
+                    el.innerHTML = `<div class="todo-checkbox" style="background:${t.done?'var(--primary)':'transparent'}"></div><span class="todo-text">${t.text}</span>`;
+                    el.onclick = () => this.toggleTodo(t.id); c.appendChild(el);
                 });
             }
 
-            // --- CALENDAR SYSTEM ---
             renderCalendar() {
-                const grid = document.getElementById('calGrid');
-                grid.innerHTML = '';
-                
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = now.getMonth();
-
-                const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-                document.getElementById('monthYear').innerText = `${monthNames[month]} ${year}`;
-
-                // Header Labels
-                ['M','D','M','D','F','S','S'].forEach(d => {
-                    const label = document.createElement('div');
-                    label.className = 'cal-day-name';
-                    label.innerText = d;
-                    grid.appendChild(label);
-                });
-
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const offset = firstDay === 0 ? 6 : firstDay - 1;
-
-                for(let i=0; i<offset; i++) grid.appendChild(document.createElement('div'));
-
-                for(let d=1; d<=daysInMonth; d++) {
-                    const key = `${d}.${month + 1}.${year}`;
-                    const cell = document.createElement('div');
-                    cell.className = 'cal-cell';
-                    if(key === this.selectedDate) cell.classList.add('selected');
-                    if(key === this.getFormattedDate(now)) cell.classList.add('today');
-                    if(this.db.notes[key]) cell.classList.add('has-content');
-                    
-                    cell.innerText = d;
-                    cell.onclick = () => this.selectDate(key);
-                    grid.appendChild(cell);
+                const g = document.getElementById('calGrid'), n = new Date(), m = n.getMonth(), y = n.getFullYear();
+                g.innerHTML = ''; document.getElementById('monthYear').innerText = `${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][m]} ${y}`;
+                ['M','D','M','D','F','S','S'].forEach(d => { const l = document.createElement('div'); l.className='cal-day-name'; l.innerText=d; g.appendChild(l); });
+                const first = new Date(y, m, 1).getDay(), days = new Date(y, m+1, 0).getDate(), off = first===0?6:first-1;
+                for(let i=0; i<off; i++) g.appendChild(document.createElement('div'));
+                for(let d=1; d<=days; d++) {
+                    const k = `${d}.${m+1}.${y}`, cell = document.createElement('div');
+                    cell.className = `cal-cell ${k===this.selectedDate?'selected':''} ${k===this.fmtDate(n)?'today':''} ${this.db.notes[k]?'has-content':''}`;
+                    cell.innerText = d; cell.onclick = () => { this.selectedDate = k; this.renderCalendar(); this.loadEntry(); }; g.appendChild(cell);
                 }
             }
 
-            selectDate(key) {
-                this.selectedDate = key;
-                this.renderCalendar();
-                this.loadEntry();
-            }
-
-            // --- UTILS ---
-            updateCounters() {
-                const body = document.getElementById('mainBody').value;
-                document.getElementById('charCount').innerText = body.length;
-                document.getElementById('wordCount').innerText = body.trim() ? body.trim().split(/\s+/).length : 0;
+            counters() {
+                const b = document.getElementById('mainBody').value;
+                document.getElementById('charCount').innerText = b.length;
+                document.getElementById('wordCount').innerText = b.trim() ? b.trim().split(/\s+/).length : 0;
             }
 
             updateStats() {
-                const days = Object.keys(this.db.notes).length;
-                const size = new Blob([JSON.stringify(this.db)]).size / 1024;
-                document.getElementById('statDays').innerText = days;
-                document.getElementById('statTotal').innerText = size.toFixed(2);
+                document.getElementById('statDays').innerText = Object.keys(this.db.notes).length;
+                document.getElementById('statTotal').innerText = (new Blob([JSON.stringify(this.db)]).size / 1024).toFixed(2);
             }
 
-            setupClock() {
-                const clock = document.getElementById('live-clock');
-                const dateDisp = document.getElementById('fullDateDisplay');
-                
-                const update = () => {
+            setupTime() {
+                const tick = () => {
                     const now = new Date();
-                    clock.innerText = now.toLocaleTimeString('de-DE');
-                    dateDisp.innerText = now.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                    document.getElementById('live-clock').innerText = now.toLocaleTimeString('de-DE');
+                    document.getElementById('fullDateDisplay').innerText = now.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
                 };
-                setInterval(update, 1000);
-                update();
+                setInterval(tick, 1000); tick();
             }
 
-            showToast(msg) {
-                const t = document.getElementById('toast');
-                t.innerText = msg;
-                t.classList.add('active');
-                setTimeout(() => t.classList.remove('active'), 3000);
-            }
-
-            exportData() {
-                const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `reldo_note_backup_${this.selectedDate}.json`;
-                a.click();
-            }
-
-            importData() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.onchange = e => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = x => {
-                        this.db = JSON.parse(x.target.result);
-                        this.saveToDisk();
-                        location.reload();
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            }
-
-            hardReset() {
-                if(confirm("Bist du sicher? Alle Notizen und Aufgaben werden unwiderruflich gelöscht!")) {
-                    localStorage.removeItem(this.storageKey);
-                    location.reload();
-                }
-            }
+            toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2500); }
+            sync() { localStorage.setItem(this.dbKey, JSON.stringify(this.db)); }
+            exportData() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download=`reldo_aura_backup.json`; a.click(); }
+            importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = x => { this.db = JSON.parse(x.target.result); this.sync(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); }
+            hardReset() { if(confirm("Alle Daten löschen?")) { localStorage.removeItem(this.dbKey); location.reload(); } }
         }
-
-        // Initialisierung der Instanz
-        const app = new ReldoNotePro();
+        const app = new ReldoAuraEngine();
     </script>
 </body>
 </html>
