@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>reldo note | Professional Workspace</title>
+    <style>
+        /* --- ARCHITEKTUR & DESIGN SYSTEM --- */
+        :root {
+            --bg-main: #0c0c0e;
+            --bg-side: #141417;
+            --accent: #3b82f6; /* Kraftvolles Blau */
+            --accent-soft: rgba(59, 130, 246, 0.1);
+            --todo-color: #10b981;
+            --text-high: #ffffff;
+            --text-mid: #94a3b8;
+            --text-low: #475569;
+            --border: rgba(255, 255, 255, 0.06);
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background: var(--bg-main); color: var(--text-high); height: 100vh; display: flex; overflow: hidden; }
+
+        /* --- SIDEBAR --- */
+        aside {
+            width: 340px; background: var(--bg-side); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 30px 20px; z-index: 100;
+        }
+        .brand-box { padding: 10px 15px 30px 15px; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
+        .brand-name { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
+        .brand-tag { font-size: 0.7rem; color: var(--text-low); text-transform: uppercase; letter-spacing: 2px; }
+
+        /* NAV */
+        .nav-group { margin-bottom: 30px; }
+        .nav-label { font-size: 0.7rem; color: var(--text-low); font-weight: 700; padding: 0 15px 10px; text-transform: uppercase; }
+        .nav-item {
+            padding: 12px 15px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-mid);
+            transition: 0.2s; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; margin-bottom: 4px;
+        }
+        .nav-item:hover, .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+
+        /* --- KALENDER ENGINE --- */
+        .cal-container { background: rgba(0,0,0,0.2); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border); }
+        .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cal-title { font-size: 0.9rem; font-weight: 700; color: var(--text-high); }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-weekday { font-size: 0.65rem; color: var(--text-low); text-align: center; font-weight: 800; padding-bottom: 5px; }
+        .cal-cell {
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; color: var(--text-mid);
+        }
+        .cal-cell:hover { background: var(--border); color: white; }
+        .cal-cell.selected { background: var(--accent); color: white; font-weight: 800; }
+        .cal-cell.today { border: 1px solid var(--accent); color: var(--accent); }
+
+        /* --- MAIN AREA --- */
+        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg-main); }
+        
+        header {
+            padding: 30px 50px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: rgba(12, 12, 14, 0.8); backdrop-filter: blur(20px); z-index: 10;
+        }
+        .clock-box { text-align: right; }
+        #main-clock { font-size: 2.2rem; font-weight: 300; letter-spacing: -1px; }
+        #main-date { color: var(--text-low); font-size: 0.85rem; }
+
+        .workspace { padding: 0 50px 50px; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+        /* DUAL COLUMN SYSTEM */
+        .split-view { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-top: 20px; }
+
+        /* EDITOR */
+        .section-box {
+            background: var(--bg-side); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            padding: 30px; box-shadow: var(--shadow);
+        }
+        .editor-title {
+            width: 100%; background: transparent; border: none; font-size: 1.6rem;
+            font-weight: 700; color: white; margin-bottom: 15px; outline: none;
+        }
+        .editor-body {
+            width: 100%; background: transparent; border: none; font-size: 1.05rem;
+            color: var(--text-mid); min-height: 250px; outline: none; resize: none; line-height: 1.7;
+        }
+        .btn-main {
+            background: var(--accent); color: white; border: none; padding: 12px 25px;
+            border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4); }
+
+        /* TO-DO LIST */
+        .todo-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .todo-input-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        .todo-input {
+            flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
+            padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem;
+        }
+        .todo-list { list-style: none; }
+        .todo-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px;
+            background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);
+        }
+        .todo-item input[type="checkbox"] { accent-color: var(--todo-color); width: 18px; height: 18px; }
+        .todo-item.done span { text-decoration: line-through; color: var(--text-low); }
+
+        /* ENTRIES */
+        .entries-grid { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .entry-card {
+            background: var(--bg-side); border: 1px solid var(--border); border-radius: 15px;
+            padding: 20px; transition: 0.3s;
+        }
+        .entry-card:hover { border-color: var(--accent); }
+        .entry-card h4 { margin-bottom: 10px; color: var(--accent); }
+        .entry-card p { font-size: 0.9rem; color: var(--text-mid); line-height: 1.5; height: 60px; overflow: hidden; }
+        .entry-date { font-size: 0.7rem; color: var(--text-low); margin-top: 15px; display: block; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div class="brand-box">
+            <div class="brand-name">reldo note</div>
+            <div class="brand-tag">Premium Workspace</div>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-label">Menu</div>
+            <div class="nav-item active">📝 Journal</div>
+            <div class="nav-item" onclick="app.export()">📦 Export Data</div>
+            <div class="nav-item" style="color:#ef4444" onclick="app.reset()">🧹 Clear All</div>
+        </div>
+
+        <div class="nav-label">Kalender-Navigation</div>
+        <div class="cal-container">
+            <div class="cal-head">
+                <div class="cal-title" id="cal-month">Februar 2026</div>
+            </div>
+            <div class="cal-grid" id="cal-grid">
+                </div>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div>
+                <h2 id="view-title">Heutige Notizen</h2>
+                <div id="main-date">Samstag, 7. Februar 2026</div>
+            </div>
+            <div class="clock-box">
+                <div id="main-clock">14:30</div>
+                <div style="color:var(--accent); font-size:0.7rem; font-weight:800">SYSTEM ONLINE</div>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <div class="split-view">
+                <div class="section-box">
+                    <input type="text" id="note-title" class="editor-title" placeholder="Titel eingeben...">
+                    <textarea id="note-body" class="editor-body" placeholder="Was beschäftigt dich heute?"></textarea>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+                        <span id="char-count" style="font-size:0.8rem; color:var(--text-low)">0 Zeichen</span>
+                        <button class="btn-main" onclick="app.saveNote()">Eintrag sichern</button>
+                    </div>
+                </div>
+
+                <div class="section-box">
+                    <div class="todo-header">✅ Daily To-Do</div>
+                    <div class="todo-input-box">
+                        <input type="text" id="todo-in" class="todo-input" placeholder="Neue Aufgabe...">
+                        <button class="btn-main" style="padding:10px" onclick="app.addTodo()">+</button>
+                    </div>
+                    <ul class="todo-list" id="todo-list">
+                        </ul>
+                </div>
+            </div>
+
+            <div id="entries-display" class="entries-grid">
+                </div>
+        </div>
+    </main>
+
+    <script>
+        class ReldoEngine {
+            constructor() {
+                this.db = JSON.parse(localStorage.getItem('reldo_v6_db')) || { notes: [], todos: [] };
+                this.selectedDate = new Date().toLocaleDateString('de-DE');
+                this.init();
+            }
+
+            init() {
+                this.renderAll();
+                this.startClock();
+                this.renderCalendar();
+                
+                document.getElementById('note-body').addEventListener('input', (e) => {
+                    document.getElementById('char-count').innerText = `${e.target.value.length} Zeichen`;
+                });
+            }
+
+            // --- NOTE SYSTEM ---
+            saveNote() {
+                const title = document.getElementById('note-title').value || 'Unbenannt';
+                const body = document.getElementById('note-body').value;
+                if(!body) return;
+
+                const note = {
+                    id: Date.now(),
+                    date: this.selectedDate,
+                    title: title,
+                    body: body,
+                    fullDate: new Date().toLocaleString()
+                };
+
+                this.db.notes.unshift(note);
+                this.sync();
+                this.clearEditor();
+            }
+
+            deleteNote(id) {
+                this.db.notes = this.db.notes.filter(n => n.id !== id);
+                this.sync();
+            }
+
+            // --- TODO SYSTEM ---
+            addTodo() {
+                const val = document.getElementById('todo-in').value;
+                if(!val) return;
+                this.db.todos.push({ id: Date.now(), text: val, done: false });
+                document.getElementById('todo-in').value = '';
+                this.sync();
+            }
+
+            toggleTodo(id) {
+                const todo = this.db.todos.find(t => t.id === id);
+                if(todo) todo.done = !todo.done;
+                this.sync();
+            }
+
+            deleteTodo(id) {
+                this.db.todos = this.db.todos.filter(t => t.id !== id);
+                this.sync();
+            }
+
+            // --- CALENDAR LOGIC ---
+            renderCalendar() {
+                const grid = document.getElementById('cal-grid');
+                const title = document.getElementById('cal-month');
+                grid.innerHTML = '';
+                
+                const now = new Date();
+                const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+                title.innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
+                ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => {
+                    grid.innerHTML += `<div class="cal-weekday">${d}</div>`;
+                });
+
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+                const startPoint = firstDay === 0 ? 6 : firstDay - 1;
+                const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+                for(let i=0; i<startPoint; i++) grid.innerHTML += `<div></div>`;
+
+                for(let d=1; d<=daysInMonth; d++) {
+                    const dateStr = `${d < 10 ? '0'+d : d}.${(now.getMonth()+1) < 10 ? '0'+(now.getMonth()+1) : (now.getMonth()+1)}.${now.getFullYear()}`;
+                    const isToday = d === now.getDate() ? 'today' : '';
+                    const isSelected = dateStr === this.selectedDate ? 'selected' : '';
+                    
+                    const cell = document.createElement('div');
+                    cell.className = `cal-cell ${isToday} ${isSelected}`;
+                    cell.innerText = d;
+                    cell.onclick = () => this.selectDate(dateStr);
+                    grid.appendChild(cell);
+                }
+            }
+
+            selectDate(date) {
+                this.selectedDate = date;
+                document.getElementById('view-title').innerText = `Notizen vom ${date}`;
+                this.renderCalendar();
+                this.renderAll();
+            }
+
+            // --- UI RENDERING ---
+            renderAll() {
+                // Render Todos
+                const todoList = document.getElementById('todo-list');
+                todoList.innerHTML = '';
+                this.db.todos.forEach(t => {
+                    const li = document.createElement('li');
+                    li.className = `todo-item ${t.done ? 'done' : ''}`;
+                    li.innerHTML = `
+                        <input type="checkbox" ${t.done ? 'checked' : ''} onclick="app.toggleTodo(${t.id})">
+                        <span style="flex:1">${t.text}</span>
+                        <span onclick="app.deleteTodo(${t.id})" style="color:#ef4444; cursor:pointer; font-size:0.8rem">✕</span>
+                    `;
+                    todoList.appendChild(li);
+                });
+
+                // Render Notes for selected date
+                const entries = document.getElementById('entries-display');
+                entries.innerHTML = '';
+                const filtered = this.db.notes.filter(n => n.date === this.selectedDate);
+                
+                filtered.forEach(n => {
+                    entries.innerHTML += `
+                        <div class="entry-card">
+                            <div style="display:flex; justify-content:space-between">
+                                <h4>${n.title}</h4>
+                                <span onclick="app.deleteNote(${n.id})" style="cursor:pointer">🗑️</span>
+                            </div>
+                            <p>${n.body}</p>
+                            <span class="entry-date">${n.fullDate}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            sync() {
+                localStorage.setItem('reldo_v6_db', JSON.stringify(this.db));
+                this.renderAll();
+            }
+
+            clearEditor() {
+                document.getElementById('note-title').value = '';
+                document.getElementById('note-body').value = '';
+                document.getElementById('char-count').innerText = '0 Zeichen';
+            }
+
+            startClock() {
+                const update = () => {
+                    const n = new Date();
+                    document.getElementById('main-clock').innerText = n.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
+                    document.getElementById('main-date').innerText = n.toLocaleDateString('de-DE', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
+                };
+                setInterval(update, 1000); update();
+            }
+
+            export() {
+                const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'reldo_backup.json'; a.click();
+            }
+
+            reset() {
+                if(confirm("Alle Daten unwiderruflich löschen?")) {
+                    localStorage.removeItem('reldo_v6_db');
+                    location.reload();
+                }
+            }
+        }
+
+        const app = new ReldoEngine();
+    </script>
+</body>
+</html>
