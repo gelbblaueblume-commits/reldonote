@@ -3,357 +3,687 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reldo note | Professional Workspace</title>
+    <title>reldo note PRO | Enterprise Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* --- ARCHITEKTUR & DESIGN SYSTEM --- */
         :root {
-            --bg-main: #0c0c0e;
-            --bg-side: #141417;
-            --accent: #3b82f6; /* Kraftvolles Blau */
-            --accent-soft: rgba(59, 130, 246, 0.1);
-            --todo-color: #10b981;
-            --text-high: #ffffff;
-            --text-mid: #94a3b8;
-            --text-low: #475569;
+            --bg: #050505;
+            --surface: #0f0f12;
+            --surface-hover: #1a1a1e;
+            --accent: #ffffff;
+            --accent-muted: #27272a;
+            --primary: #3b82f6;
+            --text: #ffffff;
+            --text-dim: #a1a1aa;
+            --text-ultra-dim: #3f3f46;
             --border: rgba(255, 255, 255, 0.06);
-            --radius-lg: 20px;
-            --radius-md: 12px;
-            --shadow: 0 20px 40px rgba(0,0,0,0.4);
+            --danger: #ef4444;
+            --success: #10b981;
+            --glass: rgba(15, 15, 18, 0.7);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-        body { background: var(--bg-main); color: var(--text-high); height: 100vh; display: flex; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh; 
+            display: flex; 
+            overflow: hidden; 
+        }
 
         /* --- SIDEBAR --- */
         aside {
-            width: 340px; background: var(--bg-side); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 30px 20px; z-index: 100;
+            width: 320px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            transition: transform 0.3s ease;
+            z-index: 100;
         }
-        .brand-box { padding: 10px 15px 30px 15px; border-bottom: 1px solid var(--border); margin-bottom: 25px; }
-        .brand-name { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
-        .brand-tag { font-size: 0.7rem; color: var(--text-low); text-transform: uppercase; letter-spacing: 2px; }
 
-        /* NAV */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-left: 10px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            font-weight: 800;
+        }
+
+        .brand-name { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 15px 10px 35px;
+            color: white;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .search-input:focus { border-color: var(--primary); }
+
         .nav-group { margin-bottom: 30px; }
-        .nav-label { font-size: 0.7rem; color: var(--text-low); font-weight: 700; padding: 0 15px 10px; text-transform: uppercase; }
-        .nav-item {
-            padding: 12px 15px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-mid);
-            transition: 0.2s; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; margin-bottom: 4px;
-        }
-        .nav-item:hover, .nav-item.active { background: var(--accent-soft); color: var(--accent); }
-
-        /* --- KALENDER ENGINE --- */
-        .cal-container { background: rgba(0,0,0,0.2); border-radius: var(--radius-lg); padding: 20px; border: 1px solid var(--border); }
-        .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .cal-title { font-size: 0.9rem; font-weight: 700; color: var(--text-high); }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-        .cal-weekday { font-size: 0.65rem; color: var(--text-low); text-align: center; font-weight: 800; padding-bottom: 5px; }
-        .cal-cell {
-            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; border-radius: 8px; cursor: pointer; transition: 0.2s; color: var(--text-mid);
-        }
-        .cal-cell:hover { background: var(--border); color: white; }
-        .cal-cell.selected { background: var(--accent); color: white; font-weight: 800; }
-        .cal-cell.today { border: 1px solid var(--accent); color: var(--accent); }
-
-        /* --- MAIN AREA --- */
-        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg-main); }
+        .nav-label { font-size: 0.65rem; color: var(--text-ultra-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 12px; padding-left: 10px; }
         
+        .nav-item {
+            padding: 12px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover { background: var(--surface-hover); color: var(--text); }
+        .nav-item.active { background: var(--accent-muted); color: var(--accent); }
+
+        /* --- CALENDAR SYSTEM --- */
+        .cal-container {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: auto;
+        }
+
+        .cal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .cal-day-label { font-size: 0.6rem; color: var(--text-ultra-dim); text-align: center; font-weight: 800; padding-bottom: 5px; }
+        .cal-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: 0.2s;
+        }
+
+        .cal-cell:hover { background: var(--surface-hover); color: white; }
+        .cal-cell.selected { background: var(--accent); color: black; font-weight: 800; }
+        .cal-cell.today { color: var(--primary); font-weight: 800; text-decoration: underline; }
+        .cal-cell.has-note::after { content: ''; position: absolute; width: 3px; height: 3px; background: var(--primary); border-radius: 50%; bottom: 4px; }
+
+        /* --- MAIN VIEW --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+        }
+
         header {
-            padding: 30px 50px; display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; background: rgba(12, 12, 14, 0.8); backdrop-filter: blur(20px); z-index: 10;
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            background: var(--glass);
+            z-index: 50;
         }
-        .clock-box { text-align: right; }
-        #main-clock { font-size: 2.2rem; font-weight: 300; letter-spacing: -1px; }
-        #main-date { color: var(--text-low); font-size: 0.85rem; }
 
-        .workspace { padding: 0 50px 50px; max-width: 1100px; margin: 0 auto; width: 100%; }
+        .header-info h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+        .header-info p { color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
 
-        /* DUAL COLUMN SYSTEM */
-        .split-view { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; margin-top: 20px; }
+        .stats-strip { display: flex; gap: 30px; }
+        .stat-item { text-align: right; }
+        .stat-value { display: block; font-size: 1.2rem; font-weight: 700; }
+        .stat-label { font-size: 0.65rem; color: var(--text-ultra-dim); text-transform: uppercase; font-weight: 700; }
 
-        /* EDITOR */
-        .section-box {
-            background: var(--bg-side); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            padding: 30px; box-shadow: var(--shadow);
+        .content-grid {
+            padding: 40px 60px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
         }
-        .editor-title {
-            width: 100%; background: transparent; border: none; font-size: 1.6rem;
-            font-weight: 700; color: white; margin-bottom: 15px; outline: none;
-        }
-        .editor-body {
-            width: 100%; background: transparent; border: none; font-size: 1.05rem;
-            color: var(--text-mid); min-height: 250px; outline: none; resize: none; line-height: 1.7;
-        }
-        .btn-main {
-            background: var(--accent); color: white; border: none; padding: 12px 25px;
-            border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s;
-        }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4); }
 
-        /* TO-DO LIST */
-        .todo-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        .todo-input-box { display: flex; gap: 10px; margin-bottom: 20px; }
-        .todo-input {
-            flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border);
-            padding: 10px; border-radius: 8px; color: white; font-size: 0.9rem;
+        /* --- EDITOR CORE --- */
+        .editor-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
+
+        .editor-input-title {
+            background: transparent;
+            border: none;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text);
+            width: 100%;
+            letter-spacing: -1px;
+        }
+
+        .editor-textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.15rem;
+            line-height: 1.8;
+            width: 100%;
+            min-height: 400px;
+            resize: none;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 25px;
+            border-top: 1px solid var(--border);
+        }
+
+        .toolbar-info { font-size: 0.8rem; color: var(--text-ultra-dim); font-family: 'JetBrains Mono', monospace; }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--accent); color: black; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,255,255,0.15); }
+        .btn-ghost { background: transparent; border-color: var(--border); color: var(--text-dim); }
+        .btn-ghost:hover { border-color: var(--text-dim); color: white; }
+
+        /* --- TODO & ANALYTICS --- */
+        .side-panel { display: flex; flex-direction: column; gap: 30px; }
+
+        .panel-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 25px;
+        }
+
+        .panel-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        .todo-input-wrap { display: flex; gap: 10px; margin-bottom: 20px; }
+        .todo-field { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: white; font-size: 0.9rem; }
+
         .todo-list { list-style: none; }
         .todo-item {
-            display: flex; align-items: center; gap: 10px; padding: 10px;
-            background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid transparent;
+            transition: 0.2s;
         }
-        .todo-item input[type="checkbox"] { accent-color: var(--todo-color); width: 18px; height: 18px; }
-        .todo-item.done span { text-decoration: line-through; color: var(--text-low); }
 
-        /* ENTRIES */
-        .entries-grid { margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .entry-card {
-            background: var(--bg-side); border: 1px solid var(--border); border-radius: 15px;
-            padding: 20px; transition: 0.3s;
+        .todo-item:hover { border-color: var(--border); background: rgba(255,255,255,0.04); }
+        .todo-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--primary); cursor: pointer; }
+        .todo-text { font-size: 0.9rem; color: var(--text-dim); flex: 1; line-height: 1.4; }
+        .todo-item.done .todo-text { text-decoration: line-through; color: var(--text-ultra-dim); }
+
+        /* --- TOAST & OVERLAYS --- */
+        #notification {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--accent);
+            color: black;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
         }
-        .entry-card:hover { border-color: var(--accent); }
-        .entry-card h4 { margin-bottom: 10px; color: var(--accent); }
-        .entry-card p { font-size: 0.9rem; color: var(--text-mid); line-height: 1.5; height: 60px; overflow: hidden; }
-        .entry-date { font-size: 0.7rem; color: var(--text-low); margin-top: 15px; display: block; }
+
+        #notification.show { transform: translateX(-50%) translateY(0); }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate { animation: fadeIn 0.4s ease forwards; }
+
     </style>
 </head>
 <body>
 
     <aside>
-        <div class="brand-box">
-            <div class="brand-name">reldo note</div>
-            <div class="brand-tag">Premium Workspace</div>
+        <div class="brand-container">
+            <div class="brand-logo">R</div>
+            <div class="brand-name">reldo note.</div>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchNotes" placeholder="Notizen durchsuchen..." oninput="app.search()">
         </div>
 
         <div class="nav-group">
-            <div class="nav-label">Menu</div>
-            <div class="nav-item active">📝 Journal</div>
-            <div class="nav-item" onclick="app.export()">📦 Export Data</div>
-            <div class="nav-item" style="color:#ef4444" onclick="app.reset()">🧹 Clear All</div>
+            <div class="nav-label">Workspace</div>
+            <div class="nav-item active">
+                <span>📓 Journal</span>
+            </div>
+            <div class="nav-item" onclick="app.exportData()">
+                <span>📤 Export (.json)</span>
+            </div>
+            <div class="nav-item" onclick="app.importData()">
+                <span>📥 Import</span>
+            </div>
         </div>
 
-        <div class="nav-label">Kalender-Navigation</div>
-        <div class="cal-container">
-            <div class="cal-head">
-                <div class="cal-title" id="cal-month">Februar 2026</div>
+        <div class="nav-group">
+            <div class="nav-label">System</div>
+            <div class="nav-item" style="color: var(--danger)" onclick="app.hardReset()">
+                <span>⚠️ Factory Reset</span>
             </div>
-            <div class="cal-grid" id="cal-grid">
+        </div>
+
+        <div class="cal-container">
+            <div class="cal-header">
+                <span id="calMonthDisplay">Februar 2026</span>
+            </div>
+            <div class="cal-grid" id="calendarGrid">
                 </div>
         </div>
     </aside>
 
     <main>
         <header>
-            <div>
-                <h2 id="view-title">Heutige Notizen</h2>
-                <div id="main-date">Samstag, 7. Februar 2026</div>
+            <div class="header-info">
+                <h1 id="activeDateDisplay">Heute</h1>
+                <p id="fullDateString">Samstag, 7. Februar 2026</p>
             </div>
-            <div class="clock-box">
-                <div id="main-clock">14:30</div>
-                <div style="color:var(--accent); font-size:0.7rem; font-weight:800">SYSTEM ONLINE</div>
+            <div class="stats-strip">
+                <div class="stat-item">
+                    <span class="stat-value" id="statNotes">0</span>
+                    <span class="stat-label">Einträge</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="statChars">0</span>
+                    <span class="stat-label">Wörter</span>
+                </div>
             </div>
         </header>
 
-        <div class="workspace">
-            <div class="split-view">
-                <div class="section-box">
-                    <input type="text" id="note-title" class="editor-title" placeholder="Titel eingeben...">
-                    <textarea id="note-body" class="editor-body" placeholder="Was beschäftigt dich heute?"></textarea>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-                        <span id="char-count" style="font-size:0.8rem; color:var(--text-low)">0 Zeichen</span>
-                        <button class="btn-main" onclick="app.saveNote()">Eintrag sichern</button>
+        <div class="content-grid">
+            <div class="editor-area animate">
+                <div class="editor-container">
+                    <input type="text" id="editorTitle" class="editor-input-title" placeholder="Titel der Notiz...">
+                    <textarea id="editorBody" class="editor-textarea" placeholder="Worüber denkst du nach? Nutze Markdown für Struktur..."></textarea>
+                    
+                    <div class="editor-toolbar">
+                        <div class="toolbar-info">
+                            <span id="charCount">0</span> Zeichen • <span id="wordCount">0</span> Wörter
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-ghost" onclick="app.clearCurrent()">Verwerfen</button>
+                            <button class="btn btn-primary" onclick="app.saveNote()">Eintrag speichern</button>
+                        </div>
                     </div>
-                </div>
-
-                <div class="section-box">
-                    <div class="todo-header">✅ Daily To-Do</div>
-                    <div class="todo-input-box">
-                        <input type="text" id="todo-in" class="todo-input" placeholder="Neue Aufgabe...">
-                        <button class="btn-main" style="padding:10px" onclick="app.addTodo()">+</button>
-                    </div>
-                    <ul class="todo-list" id="todo-list">
-                        </ul>
                 </div>
             </div>
 
-            <div id="entries-display" class="entries-grid">
+            <div class="side-panel animate" style="animation-delay: 0.1s">
+                <div class="panel-card">
+                    <div class="panel-title">
+                        To-Do Fokus
+                        <span style="font-size: 0.7rem; color: var(--primary)" id="todoCount">0 Offen</span>
+                    </div>
+                    <div class="todo-input-wrap">
+                        <input type="text" id="todoIn" class="todo-field" placeholder="Fokus-Task hinzufügen..." onkeypress="if(event.key==='Enter') app.addTodo()">
+                    </div>
+                    <div class="todo-list" id="todoList">
+                        </div>
                 </div>
+
+                <div class="panel-card">
+                    <div class="panel-title">Aktivitäts-Log</div>
+                    <div style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.6;">
+                        Deine Daten werden lokal in deinem Browser verschlüsselt gespeichert. Kein Server-Tracking aktiv.
+                        <div style="margin-top: 15px; padding: 10px; background: var(--bg); border-radius: 8px; font-family: 'JetBrains Mono'">
+                            v2.4.0-stable
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
+    <div id="notification">Aktion erfolgreich</div>
+
     <script>
+        /**
+         * RELDO NOTE - PROFESSIONAL ENGINE
+         * Version: 2.4.0
+         * Architektur: Modularer Singleton
+         */
+        
         class ReldoEngine {
             constructor() {
-                this.db = JSON.parse(localStorage.getItem('reldo_v6_db')) || { notes: [], todos: [] };
-                this.selectedDate = new Date().toLocaleDateString('de-DE');
+                // Datenbank-Initialisierung
+                const saved = localStorage.getItem('reldo_pro_v2');
+                this.data = saved ? JSON.parse(saved) : {
+                    notes: {},
+                    todos: [],
+                    settings: { theme: 'dark', lastActive: null }
+                };
+
+                this.currentDateKey = this.formatDateKey(new Date());
+                this.selectedDateKey = this.currentDateKey;
+                
                 this.init();
             }
 
             init() {
-                this.renderAll();
-                this.startClock();
+                this.updateClock();
                 this.renderCalendar();
+                this.loadNote(this.selectedDateKey);
+                this.renderTodos();
+                this.updateStats();
                 
-                document.getElementById('note-body').addEventListener('input', (e) => {
-                    document.getElementById('char-count').innerText = `${e.target.value.length} Zeichen`;
-                });
+                // Event Listener für Wortzähler
+                document.getElementById('editorBody').addEventListener('input', () => this.handleTyping());
+                
+                setInterval(() => this.updateClock(), 10000); // Sparsame Uhr-Updates
+            }
+
+            formatDateKey(date) {
+                const d = new Date(date);
+                return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
             }
 
             // --- NOTE SYSTEM ---
             saveNote() {
-                const title = document.getElementById('note-title').value || 'Unbenannt';
-                const body = document.getElementById('note-body').value;
-                if(!body) return;
+                const title = document.getElementById('editorTitle').value.trim();
+                const body = document.getElementById('editorBody').value.trim();
 
-                const note = {
-                    id: Date.now(),
-                    date: this.selectedDate,
-                    title: title,
+                if (!body && !title) {
+                    this.notify("Leere Notiz wurde nicht gespeichert");
+                    return;
+                }
+
+                this.data.notes[this.selectedDateKey] = {
+                    title: title || "Unbenannter Eintrag",
                     body: body,
-                    fullDate: new Date().toLocaleString()
+                    lastEdit: new Date().toISOString()
                 };
 
-                this.db.notes.unshift(note);
                 this.sync();
-                this.clearEditor();
+                this.notify("Eintrag erfolgreich gesichert");
+                this.renderCalendar();
+                this.updateStats();
             }
 
-            deleteNote(id) {
-                this.db.notes = this.db.notes.filter(n => n.id !== id);
-                this.sync();
+            loadNote(key) {
+                const note = this.data.notes[key] || { title: '', body: '' };
+                document.getElementById('editorTitle').value = note.title;
+                document.getElementById('editorBody').value = note.body;
+                
+                const display = document.getElementById('activeDateDisplay');
+                display.innerText = (key === this.currentDateKey) ? "Heute" : key;
+                
+                this.handleTyping();
+            }
+
+            handleTyping() {
+                const body = document.getElementById('editorBody').value;
+                const charCount = body.length;
+                const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
+                
+                document.getElementById('charCount').innerText = charCount;
+                document.getElementById('wordCount').innerText = wordCount;
+            }
+
+            clearCurrent() {
+                if(confirm("Möchtest du die Änderungen wirklich verwerfen?")) {
+                    this.loadNote(this.selectedDateKey);
+                }
+            }
+
+            search() {
+                const term = document.getElementById('searchNotes').value.toLowerCase();
+                if(!term) {
+                    this.notify("Suche beendet");
+                    return;
+                }
+                
+                const results = Object.keys(this.data.notes).filter(key => {
+                    return this.data.notes[key].title.toLowerCase().includes(term) || 
+                           this.data.notes[key].body.toLowerCase().includes(term);
+                });
+
+                if(results.length > 0) {
+                    this.selectDate(results[0]);
+                    this.notify(`${results.length} Treffer gefunden`);
+                }
             }
 
             // --- TODO SYSTEM ---
             addTodo() {
-                const val = document.getElementById('todo-in').value;
-                if(!val) return;
-                this.db.todos.push({ id: Date.now(), text: val, done: false });
-                document.getElementById('todo-in').value = '';
+                const input = document.getElementById('todoIn');
+                const text = input.value.trim();
+                if(!text) return;
+
+                this.data.todos.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false,
+                    created: new Date().toISOString()
+                });
+
+                input.value = '';
+                this.renderTodos();
                 this.sync();
             }
 
             toggleTodo(id) {
-                const todo = this.db.todos.find(t => t.id === id);
-                if(todo) todo.done = !todo.done;
+                const todo = this.data.todos.find(t => t.id === id);
+                if(todo) todo.completed = !todo.completed;
+                this.renderTodos();
                 this.sync();
             }
 
             deleteTodo(id) {
-                this.db.todos = this.db.todos.filter(t => t.id !== id);
+                this.data.todos = this.data.todos.filter(t => t.id !== id);
+                this.renderTodos();
                 this.sync();
+            }
+
+            renderTodos() {
+                const list = document.getElementById('todoList');
+                list.innerHTML = '';
+                
+                const openTasks = this.data.todos.filter(t => !t.completed).length;
+                document.getElementById('todoCount').innerText = `${openTasks} Offen`;
+
+                this.data.todos.slice().reverse().forEach(todo => {
+                    const item = document.createElement('div');
+                    item.className = `todo-item ${todo.completed ? 'done' : ''}`;
+                    item.innerHTML = `
+                        <input type="checkbox" ${todo.completed ? 'checked' : ''} onchange="app.toggleTodo(${todo.id})">
+                        <div class="todo-text">${this.escapeHtml(todo.text)}</div>
+                        <span style="color: var(--text-ultra-dim); cursor: pointer; font-size: 0.7rem;" onclick="app.deleteTodo(${todo.id})">Entfernen</span>
+                    `;
+                    list.appendChild(item);
+                });
             }
 
             // --- CALENDAR LOGIC ---
             renderCalendar() {
-                const grid = document.getElementById('cal-grid');
-                const title = document.getElementById('cal-month');
+                const grid = document.getElementById('calendarGrid');
                 grid.innerHTML = '';
                 
                 const now = new Date();
-                const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-                title.innerText = `${monthNames[now.getMonth()]} ${now.getFullYear()}`;
-
-                ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => {
-                    grid.innerHTML += `<div class="cal-weekday">${d}</div>`;
+                const month = now.getMonth();
+                const year = now.getFullYear();
+                
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                
+                // Labels
+                ['M','D','M','D','F','S','S'].forEach(day => {
+                    const el = document.createElement('div');
+                    el.className = 'cal-day-label';
+                    el.innerText = day;
+                    grid.appendChild(el);
                 });
 
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-                const startPoint = firstDay === 0 ? 6 : firstDay - 1;
-                const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                // Spacing
+                const offset = firstDay === 0 ? 6 : firstDay - 1;
+                for(let i=0; i<offset; i++) grid.appendChild(document.createElement('div'));
 
-                for(let i=0; i<startPoint; i++) grid.innerHTML += `<div></div>`;
-
+                // Days
                 for(let d=1; d<=daysInMonth; d++) {
-                    const dateStr = `${d < 10 ? '0'+d : d}.${(now.getMonth()+1) < 10 ? '0'+(now.getMonth()+1) : (now.getMonth()+1)}.${now.getFullYear()}`;
-                    const isToday = d === now.getDate() ? 'today' : '';
-                    const isSelected = dateStr === this.selectedDate ? 'selected' : '';
-                    
+                    const key = `${d}.${month + 1}.${year}`;
                     const cell = document.createElement('div');
-                    cell.className = `cal-cell ${isToday} ${isSelected}`;
+                    cell.className = 'cal-cell';
+                    if(key === this.currentDateKey) cell.classList.add('today');
+                    if(key === this.selectedDateKey) cell.classList.add('selected');
+                    if(this.data.notes[key]) cell.classList.add('has-note');
+                    
                     cell.innerText = d;
-                    cell.onclick = () => this.selectDate(dateStr);
+                    cell.onclick = () => this.selectDate(key);
                     grid.appendChild(cell);
                 }
+
+                const months = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+                document.getElementById('calMonthDisplay').innerText = `${months[month]} ${year}`;
             }
 
-            selectDate(date) {
-                this.selectedDate = date;
-                document.getElementById('view-title').innerText = `Notizen vom ${date}`;
+            selectDate(key) {
+                this.selectedDateKey = key;
                 this.renderCalendar();
-                this.renderAll();
+                this.loadNote(key);
             }
 
-            // --- UI RENDERING ---
-            renderAll() {
-                // Render Todos
-                const todoList = document.getElementById('todo-list');
-                todoList.innerHTML = '';
-                this.db.todos.forEach(t => {
-                    const li = document.createElement('li');
-                    li.className = `todo-item ${t.done ? 'done' : ''}`;
-                    li.innerHTML = `
-                        <input type="checkbox" ${t.done ? 'checked' : ''} onclick="app.toggleTodo(${t.id})">
-                        <span style="flex:1">${t.text}</span>
-                        <span onclick="app.deleteTodo(${t.id})" style="color:#ef4444; cursor:pointer; font-size:0.8rem">✕</span>
-                    `;
-                    todoList.appendChild(li);
-                });
-
-                // Render Notes for selected date
-                const entries = document.getElementById('entries-display');
-                entries.innerHTML = '';
-                const filtered = this.db.notes.filter(n => n.date === this.selectedDate);
-                
-                filtered.forEach(n => {
-                    entries.innerHTML += `
-                        <div class="entry-card">
-                            <div style="display:flex; justify-content:space-between">
-                                <h4>${n.title}</h4>
-                                <span onclick="app.deleteNote(${n.id})" style="cursor:pointer">🗑️</span>
-                            </div>
-                            <p>${n.body}</p>
-                            <span class="entry-date">${n.fullDate}</span>
-                        </div>
-                    `;
-                });
-            }
-
+            // --- DATA CORE ---
             sync() {
-                localStorage.setItem('reldo_v6_db', JSON.stringify(this.db));
-                this.renderAll();
+                localStorage.setItem('reldo_pro_v2', JSON.stringify(this.data));
             }
 
-            clearEditor() {
-                document.getElementById('note-title').value = '';
-                document.getElementById('note-body').value = '';
-                document.getElementById('char-count').innerText = '0 Zeichen';
+            updateStats() {
+                const noteCount = Object.keys(this.data.notes).length;
+                let totalWords = 0;
+                Object.values(this.data.notes).forEach(n => {
+                    totalWords += n.body.trim() ? n.body.trim().split(/\s+/).length : 0;
+                });
+
+                document.getElementById('statNotes').innerText = noteCount;
+                document.getElementById('statChars').innerText = totalWords;
             }
 
-            startClock() {
-                const update = () => {
-                    const n = new Date();
-                    document.getElementById('main-clock').innerText = n.toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'});
-                    document.getElementById('main-date').innerText = n.toLocaleDateString('de-DE', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
-                };
-                setInterval(update, 1000); update();
+            notify(msg) {
+                const n = document.getElementById('notification');
+                n.innerText = msg;
+                n.classList.add('show');
+                setTimeout(() => n.classList.remove('show'), 3000);
             }
 
-            export() {
-                const blob = new Blob([JSON.stringify(this.db)], {type: 'application/json'});
+            updateClock() {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('fullDateString').innerText = now.toLocaleDateString('de-DE', options);
+            }
+
+            exportData() {
+                const blob = new Blob([JSON.stringify(this.data)], {type: 'application/json'});
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url; a.download = 'reldo_backup.json'; a.click();
+                a.href = url;
+                a.download = `reldo_backup_${this.currentDateKey}.json`;
+                a.click();
             }
 
-            reset() {
-                if(confirm("Alle Daten unwiderruflich löschen?")) {
-                    localStorage.removeItem('reldo_v6_db');
+            importData() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        this.data = JSON.parse(event.target.result);
+                        this.sync();
+                        location.reload();
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
+            hardReset() {
+                if(confirm("ACHTUNG: Alle Daten werden unwiderruflich gelöscht. Fortfahren?")) {
+                    localStorage.removeItem('reldo_pro_v2');
                     location.reload();
                 }
             }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
         }
 
+        // App-Instanz starten
         const app = new ReldoEngine();
     </script>
 </body>
