@@ -1,437 +1,379 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>reldo note | Mood Tracker Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        /* RELDO NOTE - AURA MOOD SYSTEM */
-        :root {
-            --bg: #0d0f14;
-            --surface: #161920;
-            --surface-hover: #1c212b;
-            --accent: #e2e8f0;
-            --primary: #818cf8;
-            --text-main: #f1f5f9;
-            --text-dim: #94a3b8;
-            --text-ghost: #475569;
-            --border: rgba(255, 255, 255, 0.05);
-            --danger: #f87171;
-            --success: #34d399;
-            --shadow: 0 15px 40px rgba(0,0,0,0.4);
-            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+// State
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let savingsGoals = JSON.parse(localStorage.getItem('savingsGoals')) || [];
+const CHART_CTX = document.getElementById('financeChart').getContext('2d');
+let financeChart;
+
+// DOM Elements
+const balanceEl = document.getElementById('total-balance');
+const incomeEl = document.getElementById('total-income');
+const expensesEl = document.getElementById('total-expenses');
+const transactionForm = document.getElementById('transaction-form');
+const savingsForm = document.getElementById('savings-form');
+const navLinks = document.querySelectorAll('.nav-links li');
+const views = document.querySelectorAll('.content-view');
+
+// Initial Setup
+function init() {
+    updateUI();
+    renderTransactionList();
+    renderSavingsList();
+    initChart();
+    startAISimulation();
+}
+
+// Navigation
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        const tabId = link.getAttribute('data-tab');
+        views.forEach(view => {
+            view.classList.remove('active');
+            if (view.id === tabId) view.classList.add('active');
+        });
+
+        document.getElementById('page-title').innerText =
+            tabId === 'ai-console' ? 'AI Neural Core' :
+                tabId.charAt(0).toUpperCase() + tabId.slice(1);
+    });
+});
+
+// Transaction Handling
+transactionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const type = document.getElementById('t-type').value;
+    const desc = document.getElementById('t-desc').value;
+    const amount = parseFloat(document.getElementById('t-amount').value);
+
+    if (desc.trim() === '' || isNaN(amount) || amount <= 0) return;
+
+    const transaction = {
+        id: Date.now(),
+        type,
+        desc,
+        amount,
+        date: new Date().toLocaleDateString()
+    };
+
+    transactions.push(transaction);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+    updateUI();
+    renderTransactionList();
+    e.target.reset();
+
+    // Trigger AI Reaction
+    aiLog(`Detected new ${type}: ${desc} ($${amount}). Updating models...`, 'System');
+    updateChart();
+});
+
+// CSV Import Handler
+const csvInput = document.getElementById('csv-upload');
+if (csvInput) {
+    csvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        aiLog(`Scanning external file: ${file.name}...`, 'System');
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const text = event.target.result;
+            processCSV(text);
+        };
+        reader.readAsText(file);
+
+        // Reset input
+        e.target.value = '';
+    });
+}
+
+function processCSV(csvText) {
+    const lines = csvText.split('\n');
+    let addedCount = 0;
+
+    aiLog("Parsing financial data structures...", "System");
+
+    lines.forEach(line => {
+        // Simple parser: assumes "Description,Amount,Type" or similar
+        // We look for a string and a number. 
+        const parts = line.split(',');
+        if (parts.length < 2) return;
+
+        let desc = parts[0].trim();
+        let amount = parseFloat(parts[1]);
+        let type = 'expense'; // Default
+
+        // Try to detect type from 3rd column or amount sign
+        if (parts[2]) {
+            const rawType = parts[2].toLowerCase();
+            if (rawType.includes('inc') || rawType.includes('dep')) type = 'income';
+        } else if (amount > 0 && !desc.toLowerCase().includes('payment')) {
+            // Heuristic: If just amount, user might assume positive is income? 
+            // Let's stick to default expense unless specified, or assume alternating.
+            // Actually, usually CSVs have - for expense.
         }
 
-        body.theme-midnight { --bg: #0f1117; --surface: #1a1d26; --primary: #6366f1; }
-        body.theme-forest { --bg: #0d1210; --surface: #161e1a; --primary: #52b788; }
-        body.theme-sunset { --bg: #140f10; --surface: #1e1617; --primary: #fb7185; }
-        body.theme-royal { --bg: #110f17; --surface: #1b1626; --primary: #a78bfa; }
-        body.theme-slate { --bg: #0f172a; --surface: #1e293b; --primary: #38bdf8; }
+        // Clean up amount
+        if (isNaN(amount)) return; // Header row likely
 
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text-main); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            height: 100vh; 
-            display: flex; 
-            overflow: hidden; 
-            transition: var(--transition);
+        // Absolute value for storage, type determines sign involved in calc
+        if (amount < 0) {
+            type = 'expense';
+            amount = Math.abs(amount);
         }
 
-        /* --- SIDEBAR --- */
-        aside {
-            width: 310px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 35px 25px;
-            z-index: 100;
+        if (desc && amount) {
+            transactions.push({
+                id: Date.now() + Math.random(),
+                type,
+                desc,
+                amount,
+                date: new Date().toLocaleDateString()
+            });
+            addedCount++;
         }
+    });
 
-        .brand-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
+    if (addedCount > 0) {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        updateUI();
+        renderTransactionList();
+        renderSavingsList(); // In case we want to auto-save later
+        updateChart();
+        aiLog(`Successfully ingested ${addedCount} data points from external source.`, 'System');
+        aiLog(`Re-optimizing neural network with new biological data context...`, 'AURA');
+    } else {
+        aiLog("Error: No valid data patterns found in file.", "System");
+    }
+}
 
-        .brand-icon {
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, var(--primary), #c084fc);
-            border-radius: 12px;
-            display: flex;
-            align-items: center; justify-content: center;
-            color: white; font-weight: 800; font-size: 1.3rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+function updateUI() {
+    const income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((acc, t) => acc + t.amount, 0);
 
-        .brand-text h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
-        .brand-text p { font-size: 0.6rem; color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; }
+    const expenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((acc, t) => acc + t.amount, 0);
 
-        .nav-label {
-            font-size: 0.65rem; color: var(--text-ghost); text-transform: uppercase;
-            letter-spacing: 2px; font-weight: 800; margin: 30px 0 15px 5px;
-        }
+    const balance = income - expenses;
 
-        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 25px; }
+    balanceEl.innerText = `$${balance.toFixed(2)}`;
+    incomeEl.innerText = `$${income.toFixed(2)}`;
+    expensesEl.innerText = `$${expenses.toFixed(2)}`;
+}
 
-        .theme-btn {
-            height: 40px; border-radius: 10px; border: 1px solid var(--border);
-            cursor: pointer; transition: var(--transition);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.65rem; font-weight: 700; color: var(--text-dim);
-            background: rgba(255,255,255,0.02);
-        }
+function renderTransactionList() {
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
 
-        .theme-btn:hover { background: var(--surface-hover); border-color: var(--text-ghost); color: white; }
-        .theme-btn.active { border-color: var(--primary); background: rgba(129, 140, 248, 0.1); color: var(--primary); }
-
-        .action-group { display: flex; flex-direction: column; gap: 8px; }
-
-        .action-btn {
-            width: 100%; padding: 12px; border-radius: 12px;
-            background: transparent; border: 1px solid var(--border);
-            color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 10px;
-            transition: var(--transition);
-        }
-
-        .action-btn:hover { background: var(--surface-hover); color: white; border-color: var(--text-ghost); }
-        .action-btn.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(248, 113, 113, 0.05); }
-
-        .calendar-widget {
-            margin-top: auto; background: rgba(0,0,0,0.15);
-            border: 1px solid var(--border); border-radius: 20px; padding: 18px;
-        }
-
-        .cal-head { display: flex; justify-content: center; margin-bottom: 12px; font-size: 0.75rem; font-weight: 800; color: var(--text-dim); }
-
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .cal-day-name { font-size: 0.5rem; color: var(--text-ghost); text-align: center; font-weight: 900; padding-bottom: 5px; }
-        
-        .cal-cell {
-            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; border-radius: 8px; cursor: pointer; color: var(--text-dim);
-            transition: 0.2s; position: relative;
-        }
-
-        .cal-cell:hover { background: var(--primary); color: white; }
-        .cal-cell.selected { background: var(--accent); color: var(--bg); font-weight: 800; }
-        .cal-cell.today { color: var(--primary); font-weight: 900; }
-        .cal-cell.has-content::after {
-            content: ''; position: absolute; bottom: 4px; width: 3px; height: 3px;
-            background: var(--primary); border-radius: 50%;
-        }
-
-        /* --- MAIN CONTENT --- */
-        main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); position: relative; }
-
-        header {
-            padding: 40px 60px; display: flex; justify-content: space-between;
-            align-items: flex-end; border-bottom: 1px solid var(--border);
-        }
-
-        .welcome-text h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -1px; color: var(--text-main); }
-        .welcome-text p { color: var(--text-dim); margin-top: 5px; font-size: 0.9rem; }
-
-        #live-clock { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 400; letter-spacing: -1.5px; color: var(--text-ghost); }
-
-        .workspace-container {
-            padding: 40px 60px; display: grid; grid-template-columns: 1fr 320px;
-            gap: 40px; max-width: 1300px; width: 100%; margin: 0 auto;
-        }
-
-        .editor-wrapper {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 24px; padding: 40px; box-shadow: var(--shadow);
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
-        .input-title {
-            background: transparent; border: none; font-size: 2.2rem;
-            font-weight: 800; color: var(--text-main); width: 100%; letter-spacing: -1px;
-        }
-
-        .input-body {
-            background: transparent; border: none; font-size: 1.1rem;
-            color: var(--text-dim); line-height: 1.7; min-height: 400px;
-            resize: none; width: 100%; font-family: 'Plus Jakarta Sans';
-        }
-
-        .editor-footer {
-            display: flex; justify-content: space-between; align-items: center;
-            padding-top: 25px; border-top: 1px solid var(--border);
-        }
-
-        .word-stats { font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--text-ghost); }
-
-        .btn-save-main {
-            background: var(--primary); color: white; border: none;
-            padding: 12px 30px; border-radius: 12px; font-weight: 700;
-            cursor: pointer; transition: var(--transition); font-size: 0.85rem;
-        }
-
-        .btn-save-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); opacity: 0.9; }
-
-        /* MOOD SELECTOR STYLES */
-        .panel-item {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 20px; padding: 25px; margin-bottom: 25px;
-        }
-
-        .panel-h3 { font-size: 0.9rem; font-weight: 800; margin-bottom: 20px; color: var(--text-main); }
-
-        .mood-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .mood-circle {
-            aspect-ratio: 1;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            color: var(--text-ghost);
-            background: rgba(255,255,255,0.02);
-        }
-
-        .mood-circle:hover { border-color: var(--text-dim); transform: scale(1.1); color: white; }
-        .mood-circle.active { 
-            background: var(--primary); 
-            color: white; 
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(129, 140, 248, 0.4);
-        }
-
-        .mood-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: var(--text-ghost);
-            margin-top: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        #toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--primary); color: white; padding: 12px 25px;
-            border-radius: 12px; font-weight: 700; font-size: 0.85rem;
-            box-shadow: var(--shadow); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
-        }
-
-        #toast.active { transform: translateX(-50%) translateY(0); }
-    </style>
-</head>
-<body class="theme-midnight">
-
-    <aside>
-        <div class="brand-section">
-            <div class="brand-icon">R</div>
-            <div class="brand-text">
-                <h1>reldo note</h1>
-                <p>Mood Engine v2</p>
+    transactions.slice().reverse().forEach(t => {
+        const item = document.createElement('li');
+        item.classList.add('transaction-item', t.type);
+        item.innerHTML = `
+            <div>
+                <strong>${t.desc}</strong>
+                <div style="font-size: 0.8rem; color: #94a3b8;">${t.date}</div>
             </div>
-        </div>
+            <span class="t-amount">${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+    });
+}
 
-        <div class="nav-label">Atmosphäre</div>
-        <div class="theme-grid">
-            <div class="theme-btn" onclick="app.setTheme('midnight')">Midnight</div>
-            <div class="theme-btn" onclick="app.setTheme('forest')">Forest</div>
-            <div class="theme-btn" onclick="app.setTheme('sunset')">Sunset</div>
-            <div class="theme-btn" onclick="app.setTheme('royal')">Royal</div>
-            <div class="theme-btn" onclick="app.setTheme('slate')">Slate</div>
-            <div class="theme-btn" onclick="app.setTheme('default')">Aura</div>
-        </div>
+// Savings Handling
+if (savingsForm) {
+    savingsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-        <div class="nav-label">System</div>
-        <div class="action-group">
-            <button class="action-btn" onclick="app.exportData()">📤 Backup</button>
-            <button class="action-btn" onclick="app.importData()">📥 Restore</button>
-            <button class="action-btn danger" onclick="app.hardReset()">⚠️ Reset</button>
-        </div>
+        const name = document.getElementById('s-name').value;
+        const target = parseFloat(document.getElementById('s-target').value);
+        const current = parseFloat(document.getElementById('s-current').value);
 
-        <div class="calendar-widget">
-            <div class="cal-head"><span id="monthYear">Februar 2026</span></div>
-            <div class="cal-grid" id="calGrid"></div>
-        </div>
-    </aside>
+        if (!name || isNaN(target) || isNaN(current)) return;
 
-    <main>
-        <header>
-            <div class="welcome-text">
-                <h2 id="viewTitle">Heute</h2>
-                <p id="fullDateDisplay">Laden...</p>
+        const goal = {
+            id: Date.now(),
+            name,
+            target,
+            current
+        };
+
+        savingsGoals.push(goal);
+        localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+
+        renderSavingsList();
+        e.target.reset();
+
+        aiLog(`New Goal Initialized: ${name}. Allocating resources...`, 'System');
+    });
+}
+
+function renderSavingsList() {
+    const list = document.getElementById('savings-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    savingsGoals.forEach(goal => {
+        const percent = Math.min((goal.current / goal.target) * 100, 100);
+
+        const card = document.createElement('div');
+        card.classList.add('savings-card');
+        card.innerHTML = `
+            <div class="savings-header">
+                <h4>${goal.name}</h4>
+                <span class="target">Goal: $${goal.target}</span>
             </div>
-            <div id="live-clock">00:00:00</div>
-        </header>
+            <div class="saved-amount">$${goal.current}</div>
+            <div class="progress-container">
+                <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            </div>
+            <button class="delete-goal" onclick="deleteGoal(${goal.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+        `;
+        list.appendChild(card);
+    });
+}
 
-        <div class="workspace-container">
-            <section class="editor-wrapper">
-                <input type="text" id="mainTitle" class="input-title" placeholder="Titel...">
-                <textarea id="mainBody" class="input-body" placeholder="Was beschäftigt dich heute?"></textarea>
-                <div class="editor-footer">
-                    <div class="word-stats"><span id="wordCount">0</span> Wörter | <span id="charCount">0</span> Zeichen</div>
-                    <button class="btn-save-main" onclick="app.saveEntry()">Eintrag & Stimmung sichern</button>
-                </div>
-            </section>
+window.deleteGoal = function (id) {
+    savingsGoals = savingsGoals.filter(g => g.id !== id);
+    localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+    renderSavingsList();
+    aiLog('Goal deleted. Re-calibrating financial projections...', 'System');
+};
 
-            <section>
-                <div class="panel-item">
-                    <h3 class="panel-h3">✨ Wie war dein Tag?</h3>
-                    <div class="mood-grid" id="moodSelector">
-                        <div class="mood-circle" onclick="app.setMood(1)">1</div>
-                        <div class="mood-circle" onclick="app.setMood(2)">2</div>
-                        <div class="mood-circle" onclick="app.setMood(3)">3</div>
-                        <div class="mood-circle" onclick="app.setMood(4)">4</div>
-                        <div class="mood-circle" onclick="app.setMood(5)">5</div>
-                        <div class="mood-circle" onclick="app.setMood(6)">6</div>
-                        <div class="mood-circle" onclick="app.setMood(7)">7</div>
-                        <div class="mood-circle" onclick="app.setMood(8)">8</div>
-                        <div class="mood-circle" onclick="app.setMood(9)">9</div>
-                        <div class="mood-circle" onclick="app.setMood(10)">10</div>
-                    </div>
-                    <div class="mood-label">
-                        <span>Schlecht</span>
-                        <span>Großartig</span>
-                    </div>
-                </div>
-                <div class="panel-item">
-                    <h3 class="panel-h3">📈 Insight</h3>
-                    <p style="font-size: 0.75rem; color: var(--text-ghost); line-height: 1.5;">
-                        Du hast insgesamt <strong id="statDays" style="color:var(--text-dim)">0</strong> Tage dokumentiert. Deine durchschnittliche Stimmung liegt bei <strong id="avgMood" style="color:var(--primary)">-</strong>.
-                    </p>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <div id="toast">Änderungen gespeichert</div>
-
-    <script>
-        class ReldoMoodEngine {
-            constructor() {
-                this.dbKey = 'reldo_mood_v2';
-                this.db = JSON.parse(localStorage.getItem(this.dbKey)) || {
-                    notes: {}, config: { theme: 'midnight' }
-                };
-                this.selectedDate = this.fmtDate(new Date());
-                this.currentMood = null;
-                this.init();
+// Chart.js Setup
+function initChart() {
+    financeChart = new Chart(CHART_CTX, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Balance History',
+                data: [0, 0, 0, 0], // Placeholder
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8' } }
+            },
+            scales: {
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
             }
-
-            init() {
-                this.applyTheme(this.db.config.theme);
-                this.setupTime();
-                this.renderCalendar();
-                this.loadEntry();
-                this.updateStats();
-                document.getElementById('mainBody').oninput = () => this.counters();
-            }
-
-            fmtDate(d) { return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`; }
-
-            setTheme(n) { this.db.config.theme = n; this.applyTheme(n); this.sync(); }
-            applyTheme(n) {
-                document.body.className = n === 'default' ? '' : `theme-${n}`;
-                document.querySelectorAll('.theme-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase() === n));
-            }
-
-            setMood(val) {
-                this.currentMood = val;
-                this.renderMoods();
-            }
-
-            renderMoods() {
-                document.querySelectorAll('.mood-circle').forEach((c, idx) => {
-                    c.classList.toggle('active', (idx + 1) === this.currentMood);
-                });
-            }
-
-            saveEntry() {
-                const t = document.getElementById('mainTitle').value, b = document.getElementById('mainBody').value;
-                if(!t && !b && !this.currentMood) return;
-                
-                this.db.notes[this.selectedDate] = { 
-                    title: t || "Unbenannt", 
-                    body: b,
-                    mood: this.currentMood 
-                };
-                
-                this.sync(); 
-                this.toast("Alles gesichert"); 
-                this.renderCalendar(); 
-                this.updateStats();
-            }
-
-            loadEntry() {
-                const e = this.db.notes[this.selectedDate] || { title: '', body: '', mood: null };
-                document.getElementById('mainTitle').value = e.title;
-                document.getElementById('mainBody').value = e.body;
-                this.currentMood = e.mood;
-                this.renderMoods();
-                
-                document.getElementById('viewTitle').innerText = this.selectedDate === this.fmtDate(new Date()) ? "Heute" : this.selectedDate;
-                this.counters();
-            }
-
-            renderCalendar() {
-                const g = document.getElementById('calGrid'), n = new Date(), m = n.getMonth(), y = n.getFullYear();
-                g.innerHTML = ''; document.getElementById('monthYear').innerText = `${["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][m]} ${y}`;
-                ['M','D','M','D','F','S','S'].forEach(d => { const l = document.createElement('div'); l.className='cal-day-name'; l.innerText=d; g.appendChild(l); });
-                const first = new Date(y, m, 1).getDay(), days = new Date(y, m+1, 0).getDate(), off = first===0?6:first-1;
-                for(let i=0; i<off; i++) g.appendChild(document.createElement('div'));
-                for(let d=1; d<=days; d++) {
-                    const k = `${d}.${m+1}.${y}`, cell = document.createElement('div');
-                    cell.className = `cal-cell ${k===this.selectedDate?'selected':''} ${k===this.fmtDate(n)?'today':''} ${this.db.notes[k]?'has-content':''}`;
-                    cell.innerText = d; cell.onclick = () => { this.selectedDate = k; this.renderCalendar(); this.loadEntry(); }; g.appendChild(cell);
-                }
-            }
-
-            counters() {
-                const b = document.getElementById('mainBody').value;
-                document.getElementById('charCount').innerText = b.length;
-                document.getElementById('wordCount').innerText = b.trim() ? b.trim().split(/\s+/).length : 0;
-            }
-
-            updateStats() {
-                const entries = Object.values(this.db.notes);
-                const moodDays = entries.filter(e => e.mood !== null);
-                const avg = moodDays.length > 0 ? (moodDays.reduce((acc, curr) => acc + curr.mood, 0) / moodDays.length).toFixed(1) : "-";
-                
-                document.getElementById('statDays').innerText = entries.length;
-                document.getElementById('avgMood').innerText = avg;
-            }
-
-            setupTime() {
-                const tick = () => {
-                    const now = new Date();
-                    document.getElementById('live-clock').innerText = now.toLocaleTimeString('de-DE');
-                    document.getElementById('fullDateDisplay').innerText = now.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-                };
-                setInterval(tick, 1000); tick();
-            }
-
-            toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.classList.add('active'); setTimeout(() => t.classList.remove('active'), 2500); }
-            sync() { localStorage.setItem(this.dbKey, JSON.stringify(this.db)); }
-            exportData() { const b = new Blob([JSON.stringify(this.db)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download=`reldo_mood_backup.json`; a.click(); }
-            importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = x => { this.db = JSON.parse(x.target.result); this.sync(); location.reload(); }; r.readAsText(e.target.files[0]); }; i.click(); }
-            hardReset() { if(confirm("Alle Daten löschen?")) { localStorage.removeItem(this.dbKey); location.reload(); } }
         }
-        const app = new ReldoMoodEngine();
-    </script>
-</body>
-</html>
+    });
+    updateChart();
+}
+
+function updateChart() {
+    // Simple logic to show "trend" based on current balance
+    const currentBalance = parseFloat(balanceEl.innerText.replace('$', ''));
+    // Generate some fake "history" based on current balance for the visual
+    const dataPoints = [
+        currentBalance * 0.8,
+        currentBalance * 0.9,
+        currentBalance * 0.85,
+        currentBalance
+    ];
+
+    financeChart.data.datasets[0].data = dataPoints;
+    financeChart.update();
+}
+
+// AI Simulation Logic
+const aiLogEl = document.getElementById('ai-log');
+const fullTerminalEl = document.getElementById('full-terminal-output');
+const aiInput = document.getElementById('ai-user-input');
+const aiBtn = document.getElementById('ai-send-btn');
+
+const aiPhrases = [
+    "Analyzing market trends...",
+    "Optimizing portfolio allocation...",
+    "Checking global currency fluctuations...",
+    "Scanning user spending habits...",
+    "Self-correction: Efficiency increased by 0.05%",
+    "Neural link stable.",
+    "Projecting future earnings..."
+];
+
+function aiLog(message, sender = 'System') {
+    const p = document.createElement('p');
+    p.classList.add('log-entry');
+    if (sender === 'User') p.classList.add('user-msg');
+
+    const time = new Date().toLocaleTimeString();
+    p.innerHTML = `<span class="timestamp">[${time}] ${sender}:</span> ${message}`;
+
+    aiLogEl.appendChild(p);
+    aiLogEl.scrollTop = aiLogEl.scrollHeight;
+
+    // Also add to full terminal
+    if (fullTerminalEl) {
+        const p2 = p.cloneNode(true);
+        fullTerminalEl.appendChild(p2);
+        fullTerminalEl.scrollTop = fullTerminalEl.scrollHeight;
+    }
+}
+
+function startAISimulation() {
+    // Random background thoughts
+    setInterval(() => {
+        if (Math.random() > 0.7) {
+            const phrase = aiPhrases[Math.floor(Math.random() * aiPhrases.length)];
+            aiLog(phrase);
+        }
+    }, 5000);
+}
+
+// Chat Interaction
+aiBtn.addEventListener('click', handleUserQuery);
+aiInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleUserQuery();
+});
+
+function handleUserQuery() {
+    const text = aiInput.value.trim();
+    if (!text) return;
+
+    aiLog(text, 'User');
+    aiInput.value = '';
+
+    // Simulate thinking delay
+    aiLog("Processing query...", "System");
+
+    setTimeout(() => {
+        const response = generateAIResponse(text);
+        aiLog(response, 'AURA');
+    }, 1500);
+}
+
+function generateAIResponse(query) {
+    const q = query.toLowerCase();
+    const balance = parseFloat(balanceEl.innerText.replace('$', ''));
+
+    if (q.includes('save') || q.includes('saving')) {
+        return `Based on your balance of $${balance}, I recommend setting aside 20% ($${(balance * 0.2).toFixed(2)}) into a high-yield savings account.`;
+    }
+    if (q.includes('invest') || q.includes('crypto') || q.includes('stock')) {
+        return "Market analysis suggests diversification. Consider 60% ETFs, 30% Blue Chip Stocks, and 10% Crypto for your risk profile.";
+    }
+    if (q.includes('hello') || q.includes('hi')) {
+        return "Greetings. I am AURA. I am ready to optimize your financial life.";
+    }
+
+    return "I am analyzing that request. My algorithms suggest focusing on increasing income streams and reducing discretionary spending.";
+}
+
+// Start
+init();
+
