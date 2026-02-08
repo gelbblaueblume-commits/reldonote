@@ -1,0 +1,378 @@
+// State
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let savingsGoals = JSON.parse(localStorage.getItem('savingsGoals')) || [];
+const CHART_CTX = document.getElementById('financeChart').getContext('2d');
+let financeChart;
+
+// DOM Elements
+const balanceEl = document.getElementById('total-balance');
+const incomeEl = document.getElementById('total-income');
+const expensesEl = document.getElementById('total-expenses');
+const transactionForm = document.getElementById('transaction-form');
+const savingsForm = document.getElementById('savings-form');
+const navLinks = document.querySelectorAll('.nav-links li');
+const views = document.querySelectorAll('.content-view');
+
+// Initial Setup
+function init() {
+    updateUI();
+    renderTransactionList();
+    renderSavingsList();
+    initChart();
+    startAISimulation();
+}
+
+// Navigation
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        navLinks.forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        const tabId = link.getAttribute('data-tab');
+        views.forEach(view => {
+            view.classList.remove('active');
+            if (view.id === tabId) view.classList.add('active');
+        });
+
+        document.getElementById('page-title').innerText =
+            tabId === 'ai-console' ? 'AI Neural Core' :
+                tabId.charAt(0).toUpperCase() + tabId.slice(1);
+    });
+});
+
+// Transaction Handling
+transactionForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const type = document.getElementById('t-type').value;
+    const desc = document.getElementById('t-desc').value;
+    const amount = parseFloat(document.getElementById('t-amount').value);
+
+    if (desc.trim() === '' || isNaN(amount) || amount <= 0) return;
+
+    const transaction = {
+        id: Date.now(),
+        type,
+        desc,
+        amount,
+        date: new Date().toLocaleDateString()
+    };
+
+    transactions.push(transaction);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+    updateUI();
+    renderTransactionList();
+    e.target.reset();
+
+    // Trigger AI Reaction
+    aiLog(`Detected new ${type}: ${desc} ($${amount}). Updating models...`, 'System');
+    updateChart();
+});
+
+// CSV Import Handler
+const csvInput = document.getElementById('csv-upload');
+if (csvInput) {
+    csvInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        aiLog(`Scanning external file: ${file.name}...`, 'System');
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const text = event.target.result;
+            processCSV(text);
+        };
+        reader.readAsText(file);
+
+        // Reset input
+        e.target.value = '';
+    });
+}
+
+function processCSV(csvText) {
+    const lines = csvText.split('\n');
+    let addedCount = 0;
+
+    aiLog("Parsing financial data structures...", "System");
+
+    lines.forEach(line => {
+        // Simple parser: assumes "Description,Amount,Type" or similar
+        // We look for a string and a number. 
+        const parts = line.split(',');
+        if (parts.length < 2) return;
+
+        let desc = parts[0].trim();
+        let amount = parseFloat(parts[1]);
+        let type = 'expense'; // Default
+
+        // Try to detect type from 3rd column or amount sign
+        if (parts[2]) {
+            const rawType = parts[2].toLowerCase();
+            if (rawType.includes('inc') || rawType.includes('dep')) type = 'income';
+        } else if (amount > 0 && !desc.toLowerCase().includes('payment')) {
+            // Heuristic: If just amount, user might assume positive is income? 
+            // Let's stick to default expense unless specified, or assume alternating.
+            // Actually, usually CSVs have - for expense.
+        }
+
+        // Clean up amount
+        if (isNaN(amount)) return; // Header row likely
+
+        // Absolute value for storage, type determines sign involved in calc
+        if (amount < 0) {
+            type = 'expense';
+            amount = Math.abs(amount);
+        }
+
+        if (desc && amount) {
+            transactions.push({
+                id: Date.now() + Math.random(),
+                type,
+                desc,
+                amount,
+                date: new Date().toLocaleDateString()
+            });
+            addedCount++;
+        }
+    });
+
+    if (addedCount > 0) {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+        updateUI();
+        renderTransactionList();
+        renderSavingsList(); // In case we want to auto-save later
+        updateChart();
+        aiLog(`Successfully ingested ${addedCount} data points from external source.`, 'System');
+        aiLog(`Re-optimizing neural network with new biological data context...`, 'AURA');
+    } else {
+        aiLog("Error: No valid data patterns found in file.", "System");
+    }
+}
+
+function updateUI() {
+    const income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((acc, t) => acc + t.amount, 0);
+
+    const expenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((acc, t) => acc + t.amount, 0);
+
+    const balance = income - expenses;
+
+    balanceEl.innerText = `$${balance.toFixed(2)}`;
+    incomeEl.innerText = `$${income.toFixed(2)}`;
+    expensesEl.innerText = `$${expenses.toFixed(2)}`;
+}
+
+function renderTransactionList() {
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
+
+    transactions.slice().reverse().forEach(t => {
+        const item = document.createElement('li');
+        item.classList.add('transaction-item', t.type);
+        item.innerHTML = `
+            <div>
+                <strong>${t.desc}</strong>
+                <div style="font-size: 0.8rem; color: #94a3b8;">${t.date}</div>
+            </div>
+            <span class="t-amount">${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}</span>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// Savings Handling
+if (savingsForm) {
+    savingsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('s-name').value;
+        const target = parseFloat(document.getElementById('s-target').value);
+        const current = parseFloat(document.getElementById('s-current').value);
+
+        if (!name || isNaN(target) || isNaN(current)) return;
+
+        const goal = {
+            id: Date.now(),
+            name,
+            target,
+            current
+        };
+
+        savingsGoals.push(goal);
+        localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+
+        renderSavingsList();
+        e.target.reset();
+
+        aiLog(`New Goal Initialized: ${name}. Allocating resources...`, 'System');
+    });
+}
+
+function renderSavingsList() {
+    const list = document.getElementById('savings-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    savingsGoals.forEach(goal => {
+        const percent = Math.min((goal.current / goal.target) * 100, 100);
+
+        const card = document.createElement('div');
+        card.classList.add('savings-card');
+        card.innerHTML = `
+            <div class="savings-header">
+                <h4>${goal.name}</h4>
+                <span class="target">Goal: $${goal.target}</span>
+            </div>
+            <div class="saved-amount">$${goal.current}</div>
+            <div class="progress-container">
+                <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            </div>
+            <button class="delete-goal" onclick="deleteGoal(${goal.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+        `;
+        list.appendChild(card);
+    });
+}
+
+window.deleteGoal = function (id) {
+    savingsGoals = savingsGoals.filter(g => g.id !== id);
+    localStorage.setItem('savingsGoals', JSON.stringify(savingsGoals));
+    renderSavingsList();
+    aiLog('Goal deleted. Re-calibrating financial projections...', 'System');
+};
+
+// Chart.js Setup
+function initChart() {
+    financeChart = new Chart(CHART_CTX, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Balance History',
+                data: [0, 0, 0, 0], // Placeholder
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { color: '#94a3b8' } }
+            },
+            scales: {
+                y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            }
+        }
+    });
+    updateChart();
+}
+
+function updateChart() {
+    // Simple logic to show "trend" based on current balance
+    const currentBalance = parseFloat(balanceEl.innerText.replace('$', ''));
+    // Generate some fake "history" based on current balance for the visual
+    const dataPoints = [
+        currentBalance * 0.8,
+        currentBalance * 0.9,
+        currentBalance * 0.85,
+        currentBalance
+    ];
+
+    financeChart.data.datasets[0].data = dataPoints;
+    financeChart.update();
+}
+
+// AI Simulation Logic
+const aiLogEl = document.getElementById('ai-log');
+const fullTerminalEl = document.getElementById('full-terminal-output');
+const aiInput = document.getElementById('ai-user-input');
+const aiBtn = document.getElementById('ai-send-btn');
+
+const aiPhrases = [
+    "Analyzing market trends...",
+    "Optimizing portfolio allocation...",
+    "Checking global currency fluctuations...",
+    "Scanning user spending habits...",
+    "Self-correction: Efficiency increased by 0.05%",
+    "Neural link stable.",
+    "Projecting future earnings..."
+];
+
+function aiLog(message, sender = 'System') {
+    const p = document.createElement('p');
+    p.classList.add('log-entry');
+    if (sender === 'User') p.classList.add('user-msg');
+
+    const time = new Date().toLocaleTimeString();
+    p.innerHTML = `<span class="timestamp">[${time}] ${sender}:</span> ${message}`;
+
+    aiLogEl.appendChild(p);
+    aiLogEl.scrollTop = aiLogEl.scrollHeight;
+
+    // Also add to full terminal
+    if (fullTerminalEl) {
+        const p2 = p.cloneNode(true);
+        fullTerminalEl.appendChild(p2);
+        fullTerminalEl.scrollTop = fullTerminalEl.scrollHeight;
+    }
+}
+
+function startAISimulation() {
+    // Random background thoughts
+    setInterval(() => {
+        if (Math.random() > 0.7) {
+            const phrase = aiPhrases[Math.floor(Math.random() * aiPhrases.length)];
+            aiLog(phrase);
+        }
+    }, 5000);
+}
+
+// Chat Interaction
+aiBtn.addEventListener('click', handleUserQuery);
+aiInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleUserQuery();
+});
+
+function handleUserQuery() {
+    const text = aiInput.value.trim();
+    if (!text) return;
+
+    aiLog(text, 'User');
+    aiInput.value = '';
+
+    // Simulate thinking delay
+    aiLog("Processing query...", "System");
+
+    setTimeout(() => {
+        const response = generateAIResponse(text);
+        aiLog(response, 'AURA');
+    }, 1500);
+}
+
+function generateAIResponse(query) {
+    const q = query.toLowerCase();
+    const balance = parseFloat(balanceEl.innerText.replace('$', ''));
+
+    if (q.includes('save') || q.includes('saving')) {
+        return `Based on your balance of $${balance}, I recommend setting aside 20% ($${(balance * 0.2).toFixed(2)}) into a high-yield savings account.`;
+    }
+    if (q.includes('invest') || q.includes('crypto') || q.includes('stock')) {
+        return "Market analysis suggests diversification. Consider 60% ETFs, 30% Blue Chip Stocks, and 10% Crypto for your risk profile.";
+    }
+    if (q.includes('hello') || q.includes('hi')) {
+        return "Greetings. I am AURA. I am ready to optimize your financial life.";
+    }
+
+    return "I am analyzing that request. My algorithms suggest focusing on increasing income streams and reducing discretionary spending.";
+}
+
+// Start
+init();
